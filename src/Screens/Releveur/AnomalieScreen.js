@@ -1,18 +1,18 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react'
 import { View, ScrollView, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native'
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 
 export default function Anomalie() {
     const user = useSelector((state) => state.user.value);
     //const [role, setRole] = useState("Admin")
     const [role, setRole] = useState(user.role)
-
+const dispatch = useDispatch()
     const anomaliesData = useSelector((state) => state.anomalies.anomalies);
     const [anomalies, setAnomalies] = useState([])
 
     useEffect(() => {
-        setAnomalies(anomaliesData.anomalies)
+        setAnomalies(anomaliesData)
     }, [])
 
     const FlatList_Header = () => {
@@ -24,41 +24,25 @@ export default function Anomalie() {
                 flexDirection: 'row',
                 backgroundColor: '#17DBE4',
                 alignItems: 'center',
+                paddingTop:3
             }}>
 
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 80, color: 'black', height: 30, }}> CodeA </Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 80, color: 'black', borderLeftWidth: 1, height: 30, }}> Libele </Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 140, color: 'black', borderLeftWidth: 1, height: 30, }}> Désignation </Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 120, color: 'black', borderLeftWidth: 1, height: 30, }}> Code Fluide </Text>
-                {
-                    user.role != 'Releveur' ? (
-                        <Text style={{ fontSize: 18, fontWeight: 'bold', width: 100, color: 'black', borderLeftWidth: 1, height: 30, }}> Options </Text>
-                    ) : (<></>)
-                }
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 50, color: 'black', height: 30, }}> ID </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 130, color: 'black', borderLeftWidth: 1, height: 30,textAlign:'center' }}> Libele </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 180, color: 'black', borderLeftWidth: 1, height: 30, textAlign:'center'}}> Désignation </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 110, color: 'black', borderLeftWidth: 1, height: 30, }}> Code Fluide </Text>
+              
             </View>
         );
     }
 
-    const ItemRender = ({ codeA, libele, designation, codeFluide, index }) => (
-        <View key={codeA} style={[styles.item, index % 2 && { backgroundColor: '#D0C9C0' }]}>
-            <Text style={{ fontSize: 16, width: 80, color: 'black', textAlign: 'center' }}>{codeA}</Text>
-            <Text style={{ fontSize: 16, width: 80, color: 'black', paddingHorizontal: 3, textAlign: 'center' }}>{libele}</Text>
-            <Text style={{ fontSize: 16, width: 140, color: 'black', paddingHorizontal: 2 }}>{designation}</Text>
-            <Text style={{ fontSize: 16, width: 100, color: 'black', marginLeft: 10, textAlign: 'center' }}>{codeFluide}</Text>
-            {
-                user.role != 'Releveur' ? (
-                <View style={{ width: 100, flexDirection: 'row', justifyContent: 'center' }}>
-
-                    <TouchableOpacity style={{ marginLeft: 10 }}>
-                        <MaterialCommunityIcons name="account-edit-outline" size={30} color="#0A66C2" />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={{ marginLeft: 15 }}>
-                        <MaterialCommunityIcons name="delete-outline" size={25} color="red" />
-                    </TouchableOpacity>
-                </View>
-                ) : (<></>)
-            }
+    const ItemRender = ({ anomalieId, libele, designation, codeFluide, index }) => (
+        <View key={index} style={[styles.item, index % 2 && { backgroundColor: '#D0C9C0' }]}>
+            <Text style={{ fontSize: 16, width: 50, color: 'black', textAlign: 'center' }}>{index+1}</Text>
+            <Text style={{ fontSize: 16, width: 130, color: 'black', paddingHorizontal: 3, textAlign: 'center' }}>{libele}</Text>
+            <Text style={{ fontSize: 16, width: 180, color: 'black', paddingHorizontal: 2 }}>{designation}</Text>
+            <Text style={{ fontSize: 16, width: 110, color: 'black', marginLeft: 10, textAlign: 'center' }}>{codeFluide}</Text>
+           
         </View>
     );
     const ItemDivider = () => {
@@ -80,7 +64,7 @@ export default function Anomalie() {
             <ScrollView horizontal={true} bounces={false}>
                 <FlatList
                     data={anomalies}
-                    renderItem={({ item, index }) => <ItemRender index={index} codeA={item.codeAnomalie} libele={item.libele} designation={item.designation} codeFluide={item.codeFluide} adress={item.adress} />}
+                    renderItem={({ item, index }) => <ItemRender index={index} anomalieId={item.anomalieId} libele={item.libele} designation={item.designation} codeFluide={item.codeFluide} adress={item.adress} />}
                     keyExtractor={item => item.codeAnomalie}
                     ItemSeparatorComponent={ItemDivider}
                     ListHeaderComponent={FlatList_Header}

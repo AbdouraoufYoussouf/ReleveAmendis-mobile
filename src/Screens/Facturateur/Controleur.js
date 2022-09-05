@@ -3,6 +3,7 @@ import { Alert, PermissionsAndroid } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import XLSX, { readFile } from 'xlsx';
 import { insertCompteur } from '../../../services/Compteur.Service';
+import { insertAllRue, insertAllSecteur } from '../../../services/RueSecteurService';
 import db from '../../../services/SqliteDb';
 import { insertTourne } from '../../../services/TourneeServices';
 import { ToastAvertisement, ToastSuccess } from '../../Components/Notifications';
@@ -130,12 +131,15 @@ export const handleClickChargeDistant = async (terminalNumber) => {
                     if (res.rows.length == 0) {
                         insertTourne(tourne.tourneeNumber, tourne.moisTourne);
                         tourne.compteursList.map((compt, inde) => {
+                            insertAllRue(compt.rueName);
+                            insertAllSecteur(compt.codeSecteur);
                             insertCompteur(
                                 compt.numberElecticMeter,
                                 compt.geographicId,
                                 compt.clientName,
                                 compt.police,
                                 compt.rueName,
+                                compt.codeSecteur,
                                 compt.codeFluide,
                                 compt.etat,
                                 compt.readStatus,
@@ -159,48 +163,55 @@ export const handleClickChargeDistant = async (terminalNumber) => {
     })
 }
 
-export const dechargeCompteurs = () => {
-    let allCompteurs = dataTournee.map((item) => {
+export const dechargeCompteurs = (compteurs,message) => {
+    let allCompteurs = compteurs.map((item) => {
         return {
-            "numberElecticMeter": item.NumberElecticMeter,
-            "geographicId": item.GeographicId,
-            "clientName": item.ClientName,
-            "oldIndex": item.OldIndex,
-            "police": item.Police,
-            "newIndex": 0,
-            "etat": item.Etat,
-            "readStatus": item.ReadStatus,
-            "comsumption": 0,
-            "comsupMoyen": item.ComsupMoyen,
-            "codeFluide": item.CodeFluide,
-            "rueName": item.RueName,
-            "ordreRue": item.OrdreRue,
-            "codeSecteur": item.CodeSecteur,
-            "newIndex1": 0,
-            "newIndex2": 0,
-            "newIndex3": 0,
-            "newIndex4": 0,
-            "newIndex5": 0,
-            "newIndex6": 0,
-            "newIndex7": 0
+            "numberElecticMeter": item.numeroCompteur,
+            "geographicId": item.idGeographique,
+            "clientName": item.nomAbonne,
+            "oldIndex": item.ancienIndex,
+            "police": item.police,
+            "newIndex": item.nouveauIndex ? item.nouveauIndex :0,
+            "etat": item.codeEtat,
+            "readStatus": item.etatLecture,
+            "comsumption": item.consommation,
+            "comsupMoyen": item.consMoyenne,
+            "codeFluide": item.codeFluide,
+            "rueName": item.numeroRue,
+            "ordreRue": item.ordreRue,
+            "codeSecteur": item.codeSecteur,
+            "anomalie1": item.anomalie1 ? item.anomalie1 :"",
+            "anomalie2": item.anomalie2 ? item.anomalie2 :"",
+            "dateReleve": item.dateReleve ? item.dateReleve : "",
+            "newIndex1": item.nouveauIndex1 ? item.nouveauIndex1 :0,
+            "newIndex2": item.nouveauIndex2 ? item.nouveauIndex2 :0,
+            "newIndex3": item.nouveauIndex3 ? item.nouveauIndex3 :0,
+            "newIndex4": item.nouveauIndex4 ? item.nouveauIndex4 :0,
+            "newIndex5": item.nouveauIndex5 ? item.nouveauIndex5 :0,
+            "newIndex6": item.nouveauIndex6 ? item.nouveauIndex6 :0,
+            "newIndex7": item.nouveauIndex7 ? item.nouveauIndex7 :0
         }
     })
 
-    let axiosConfigD = {
+
+    let axiosConfig = {
         headers: {
             'accept': 'text/plain',
             'Content-Type': 'application/json',
             "Access-Control-Allow-Origin": "*",
         }
     }
+    allCompteurs.map((compt, index) => {
+        console.log('numeroCompteur', compt.numberElecticMeter)
+        axios.put('http://192.168.1.9:45455/api/ElectricMeter/decharge/' + compt.numberElecticMeter, compt, axiosConfig)
+            .then((res) => {
+                console.log('Compteur mis à jour avec succés')
+                console.log(index)
 
-    axios.post(url, data, axiosConfigD)
-    .then((res) => {
-      console.log('Compteur added')
-
-      dispatch(setAllTourne(data))
+            })
+            .catch((err) => {
+                console.log("AXIOS ERROR: ", err);
+            })
     })
-    .catch((err) => {
-      console.log("AXIOS ERROR: ", err);
-    })
+    ToastSuccess(message)
 }

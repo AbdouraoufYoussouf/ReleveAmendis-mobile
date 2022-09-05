@@ -8,9 +8,10 @@ import { Formik } from 'formik';
 import db from '../../services/SqliteDb';
 import { ToastAvertisement } from '../Components/Notifications';
 import { BarIndicator, UIActivityIndicator, } from 'react-native-indicators';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { login, } from '../../services/redux/userSlice';
 import { setDataTourne } from '../../services/redux/tourneSlice';
+import { updateUserTerminal } from '../../services/TerminalService';
 
 
 export default function Login({ navigation, route }) {
@@ -18,6 +19,7 @@ export default function Login({ navigation, route }) {
   const [role, setRole] = useState('Releveur')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const terminalLocal = useSelector((state) => state.terminals.terminalLocal);
 
   // Pogress Bar
   const [loading, setLoading] = useState(false);
@@ -49,7 +51,8 @@ export default function Login({ navigation, route }) {
               passwordu: row.password
             }))
             if (password === row.password) {
-              // console.log('userData',userData)
+               console.log('userData',row)
+              updateUserTerminal(terminalLocal,null,row)
               navigation.navigate('home', { user: row })
               setEmail('')
               setPassword('')
@@ -87,7 +90,7 @@ export default function Login({ navigation, route }) {
             onSubmit={(values) => onLogin(values.email, values.password)}
             validationSchema={loginValidationShelma}
           >
-            {({ handleChange, handleBlur, handleSubmit, values, touched, isValid, errors }) => (
+            {({ handleChange, handleBlur, handleSubmit,resetForm, values, touched, isValid, errors }) => (
               <Form>
                 <FormControle>
                   <Label>Email</Label>
@@ -133,8 +136,8 @@ export default function Login({ navigation, route }) {
                     <Text style={{ color: '#4632A1', fontSize: 16, }}>Mot de passe oublié?</Text>
                   </TouchableOpacity>
                 </FormControle>
-{/* 
-                <FormControle >
+
+                {/* <FormControle >
                   <TouchableOpacity disabled={!isValid} onPress={handleSubmit}
                     style={[styles.btnSave, { backgroundColor: isValid ? '#155e75' : '#CACFD2' }]}
                   >
@@ -147,10 +150,10 @@ export default function Login({ navigation, route }) {
                       </MyButtonContainer>
                   
                   </TouchableOpacity>
-                </FormControle> */}
+                </FormControle>  */}
 
-                <FormControle >
-                  <TouchableOpacity disabled={!isValid} onPress={() => onLogin('anfife@gmail.com', 'Anfife@2002')}
+               <FormControle >
+                  <TouchableOpacity disabled={!isValid} onPress={() => onLogin('alhalim@gmail.com', 'Alhalim@2020')}
                     style={[styles.btnSave, { backgroundColor: isValid ? '#155e75' : '#CACFD2' }]}
                   >
                     <MyButtonContainer  paddingTop='3px' width='100%' color='white' >
@@ -162,7 +165,7 @@ export default function Login({ navigation, route }) {
                       </MyButtonContainer>
                   
                   </TouchableOpacity>
-                </FormControle> 
+                </FormControle>
 
                 
 

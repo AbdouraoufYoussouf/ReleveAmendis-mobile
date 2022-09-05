@@ -18,6 +18,9 @@ export const compteurSlice = createSlice({
         setAncienCompteurs:(state,{payload}) => {
             state.ancienCompteurs = payload;
         },
+        addAncienCompteurs:(state,{payload}) => {
+            state.ancienCompteurs.push(payload)
+        },
         addCompteurs:{
             reducer(state,action){
                 state.push(action.payload)
@@ -51,5 +54,5 @@ export const compteurSlice = createSlice({
     }
 });
 
-export const { setCompteurs ,setIdCompteur,loding ,notLoding,setAncienCompteurs,minLoding,notMinLoding,goCreate,notGoCreate} = compteurSlice.actions;
+export const {addAncienCompteurs, setCompteurs ,setIdCompteur,loding ,notLoding,setAncienCompteurs,minLoding,notMinLoding,goCreate,notGoCreate} = compteurSlice.actions;
 export default compteurSlice.reducer;

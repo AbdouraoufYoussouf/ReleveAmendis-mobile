@@ -32,10 +32,10 @@ export const FormInput = styled.View`
 `;
 
 export const Label = styled.Text`
-    margin-top:5px ;
+    margin-top:1px ;
     font-size: ${props => props.fontZise || '19px'};
     border-radius: 5px;
-    height: 35px;
+    height: 40px;
     text-align: ${props => props.textAlign ? 'center' : 'left'};
     color: ${props => props.color || 'black'};
     margin-left: ${props => props.marginLeft || '3px'};

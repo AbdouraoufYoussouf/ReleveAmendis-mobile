@@ -1,5 +1,5 @@
 //import { useDispatch } from "react-redux"
-import { setAnomalies, setDesignationAnomalies } from "./redux/anomalieSlice";
+import { setAnomalies, setDesignationAnomalies, setFluides } from "./redux/anomalieSlice";
 import { loding, setAncienCompteurs, setCompteurs } from "./redux/compteurSlice";
 import { setRue, setSecteur } from "./redux/rueSecteurSlice";
 import { getTerminalLocal } from "./redux/terminalSlice";
@@ -21,9 +21,7 @@ export const AddDataToStore = (dispatch) => {
                 let len = res.rows.length;
                 for (let i = 0; i < len; ++i)
                 temp.push(res.rows.item(i));
-                dispatch(setAnomalies(
-                    { anomalies: temp }
-                    ))
+                dispatch(setAnomalies(temp ))
                     //console.log('Anomalie:', len);
             }
         );
@@ -79,7 +77,7 @@ export const AddDataToStore = (dispatch) => {
     ///////*********** Add Secteur to store //////// */
     db.transaction(function (txn) {
         txn.executeSql(
-            'SELECT * FROM fluide',
+            'SELECT * FROM secteur',
             [],
             (tx, res) => {
                 var temp = [];
@@ -87,29 +85,27 @@ export const AddDataToStore = (dispatch) => {
                 for (let i = 0; i < len; ++i)
                 temp.push(res.rows.item(i));
                 dispatch(setSecteur(temp))
-                console.log('fluides:', len);
+                console.log('secteurs:', len);
             }
         );
     });
-   
-  
-   
     ///////*********** Add Secteur to store //////// */
     db.transaction(function (txn) {
         txn.executeSql(
-            'SELECT * FROM tournee',
+            'SELECT * FROM fluide',
             [],
             (tx, res) => {
                 var temp = [];
                 let len = res.rows.length;
                 for (let i = 0; i < len; ++i)
                 temp.push(res.rows.item(i));
-                dispatch(getAllTourne(temp));
-                //  dispatch(setTourneCourant(temp[0].numeroTourne))
-                // console.log('numeroTournes:', temp[0].numeroTourne);
+                dispatch(setFluides(temp))
+                console.log('fluides:', len);
             }
         );
     });
+   
+  
    
     ///////*********** Add terminalNumber to store //////// */
     db.transaction(function (txn) {

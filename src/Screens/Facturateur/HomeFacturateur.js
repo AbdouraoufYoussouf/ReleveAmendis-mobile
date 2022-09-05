@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useDispatch, useSelector } from 'react-redux';
 
 import XLSX, { readFile } from 'xlsx';
-import { handleClickChargeDistant, handleClickDecharge, importExcelToData } from './Controleur';
+import { dechargeCompteurs, handleClickChargeDistant, handleClickDecharge, importExcelToData } from './Controleur';
 import axios from 'axios';
 import { getTerminal } from '../../../services/redux/terminalSlice';
 import { getAllTourne } from '../../../services/redux/tourneSlice';
@@ -18,8 +18,8 @@ var output = str => str
 
 export default function HomeFacturateur() {
   const dispatch = useDispatch()
-  const [data, setData] = useState([])
   const [tourne, setTourne] = useState(1)
+  const allTerminals = useSelector((state) => state.terminals.terminals);
 
   const terminalLocal = useSelector((state) => state.terminals.terminalLocal);
   const terminal = useSelector((state) => state.terminals.terminal);
@@ -27,10 +27,10 @@ export default function HomeFacturateur() {
   const dbExist = useSelector((state) => state.terminals.isDbExist);
 
   const datasComplete = useSelector((state) => state.compteurs.ancienCompteurs);
-  const datasPartiel = datasComplete.filter((comt) => comt.etatLecture == 1);
+  const datasPartiel = datasComplete.filter((comt) => comt.etatLecture === 'L');
 
-  // console.log("dataComplet", datasComplete.length)
-  // console.log("compteurPartiel", datasPartiel.length)
+ // console.log("dataComplet", datasComplete.length)
+  //console.log("compteurPartiel", datasPartiel)
 
   let handleDechargeCptLocal = () => {
     handleClickDecharge(datasComplete, tourne, setTourne, ' Complete')
@@ -44,14 +44,31 @@ export default function HomeFacturateur() {
 
   }
 
+  let handleDechargeCptDistant = () => {
+    dechargeCompteurs(datasComplete, "Vous venez de décharger tous les compteurs de ce terminal!")
+  }
+  let handleDechargePrlDistant = () => {
+    dechargeCompteurs(datasPartiel, "Vous venez de décharger tous les compteurs lu de ce terminal!")
+  }
+  const termianlExist = allTerminals.find((term) => term.terminalNumber.toLowerCase() === terminalLocal?.numeroTPL.toLowerCase());
+  //console.log('termianlex', termianlExist)
+
   let handleChargeDistant = () => {
     if (dbExist) {
-      handleClickChargeDistant(terminalLocal?.numeroTPL)
-    }else{
-ToastAvertisement("Vous devez d'abord créer la base des données!!")
+      if(termianlExist!=null){
+        handleClickChargeDistant(terminalLocal?.numeroTPL)
+      }else{
+        ToastAvertisement("Vous devez configurer le terminal avant de faire la charge!")
+      }
+    } else {
+      ToastAvertisement("Vous devez d'abord créer la base des données et configurer le terminal!!")
     }
 
   }
+
+  useEffect(()=>{
+//console.log('homeFacturateur')
+  },[terminalLocal])
 
   return (
     <View style={styles.container}>
@@ -60,26 +77,31 @@ ToastAvertisement("Vous devez d'abord créer la base des données!!")
         style={styles.linearGradient}
       >
         <View style={{ justifyContent: 'space-around', alignItems: 'center', width: '100%', height: '53%' }}>
-          <TouchableOpacity style={styles.button}
+          {/* <TouchableOpacity style={styles.button}
             onPress={() => handleDechargeCptLocal()}>
             <Text style={styles.textButton}>Décharge complete local</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}
             onPress={() => handleDechargePrlLocal()}>
             <Text style={styles.textButton}>Décharge Partielle local</Text>
+          </TouchableOpacity> */}
+
+          <TouchableOpacity style={styles.button}
+            onPress={() => handleDechargeCptDistant()}
+          >
+            <Text style={[styles.textButton, { backgroundColor: '#444', color: 'white' }]}>Décharge complete distant</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button}
+            onPress={() => handleDechargePrlDistant()}
           >
-            <Text style={[styles.textButton, { backgroundColor: 'white', color: 'black' }]}>Décharge complete distant</Text>
+            <Text style={[styles.textButton, { backgroundColor: '#444', color: 'white' }]}>Décharge Partielle distant</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button}
-          >
-            <Text style={[styles.textButton, { backgroundColor: 'white', color: 'black' }]}>Décharge Partielle distant</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={{ alignSelf: 'center', width: '50%', height: 35 }}
+
+          {/* <TouchableOpacity style={{ alignSelf: 'center', width: '50%', height: 35 }}
             onPress={() => handleCharge()}>
             <Text style={[styles.textButton, { backgroundColor: '#444', color: 'white' }]}>Charge local</Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
+
           <TouchableOpacity style={{ alignSelf: 'center', width: '50%', height: 35 }}
             onPress={() => handleChargeDistant()}>
             <Text style={[styles.textButton, { backgroundColor: 'white', color: 'blue' }]}>Charge distant</Text>

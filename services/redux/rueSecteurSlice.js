@@ -5,7 +5,7 @@ export const rueSecteurSlice = createSlice({
     initialState:{
         rues:[],
         secteurs:[],
-      
+      rueEnlecture:''
     },
     reducers:{
         setRue:(state,{payload}) => {
@@ -13,6 +13,10 @@ export const rueSecteurSlice = createSlice({
         },
         setSecteur:(state,{payload}) => {
             state.secteurs = payload;
+        },
+       
+        setRueEnlecture:(state,{payload}) => {
+            state.rueEnlecture = payload;
         },
        
         addRue:{
@@ -31,5 +35,5 @@ export const rueSecteurSlice = createSlice({
     }
 });
 
-export const { setRue ,setSecteur} = rueSecteurSlice.actions;
+export const { setRue ,setSecteur,setRueEnlecture,addRue} = rueSecteurSlice.actions;
 export default rueSecteurSlice.reducer;

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { ToastAndroid } from 'react-native';
 import db from '../services/SqliteDb';
 import { ToastEchec, ToastSuccess } from '../src/Components/Notifications';
 import { AddDataToStore } from './AddDataTotore';
+import { setCompteurs } from './redux/compteurSlice';
 
-export const insertCompteur = (numeroCompteur, idGeographique, nomAbonne, police,numeroRue,codeSecteur,codeFluide,codeEtat,etatLecture,ancienIndex,consMoyenne,numeroTourne,consommation,ordreRue) => {
+export const insertCompteur = (numeroCompteur, idGeographique, nomAbonne, police, numeroRue, codeSecteur, codeFluide, codeEtat, etatLecture, ancienIndex, consMoyenne, numeroTourne, consommation, ordreRue) => {
 
   console.log("Debut de l'ajout d'un compteur.");
   let result = '';
@@ -22,7 +24,7 @@ export const insertCompteur = (numeroCompteur, idGeographique, nomAbonne, police
         //*********** Requettes *********//
 
         tx.executeSql(`INSERT INTO compteur(numeroCompteur,nomAbonne,idGeographique,police,numeroRue,codeSecteur,codeFluide,codeEtat,etatLecture,ancienIndex,consMoyenne,numeroTourne,consommation,ordreRue) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
-          [numeroCompteur,nomAbonne, idGeographique, police,numeroRue,codeSecteur,codeFluide,codeEtat,etatLecture,ancienIndex,consMoyenne,numeroTourne,consommation,ordreRue],
+                                          [numeroCompteur, nomAbonne, idGeographique, police, numeroRue, codeSecteur, codeFluide, codeEtat, etatLecture, ancienIndex, consMoyenne, numeroTourne, consommation, ordreRue],
           onSuccess, onError);
         if (onSuccess) {
 
@@ -43,9 +45,8 @@ export const insertCompteur = (numeroCompteur, idGeographique, nomAbonne, police
 }
 
 export const createNewCompteur = (numeroCompteur, idGeographique, nomAbonne, adresse) => {
-
-  console.log("Debut de l'ajout d'un compteur.");
-  let result = '';
+let etatLecture = 'NL'
+  console.log("Debut de l'ajout d'un compteur."  ,nomAbonne,numeroCompteur,idGeographique,adresse);
   const p = new Promise((resolve, reject) => {
     db.transaction(
       tx => {
@@ -59,8 +60,8 @@ export const createNewCompteur = (numeroCompteur, idGeographique, nomAbonne, adr
           // throw Error("Statement failed.");
         };
         //*********** Requettes *********//
-        tx.executeSql(`INSERT INTO compteur(numeroCompteur,idGeographique,nomAbonne,adresse) VALUES (?,?,?,?);`,
-          [numeroCompteur, idGeographique, nomAbonne, adresse],
+        tx.executeSql(`INSERT INTO compteur(numeroCompteur,idGeographique,nomAbonne,adresse,etatLecture) VALUES (?,?,?,?,?);`,
+          [numeroCompteur, idGeographique, nomAbonne, adresse,etatLecture],
           onSuccess, onError);
         if (onSuccess) {
 
@@ -83,10 +84,14 @@ export const createNewCompteur = (numeroCompteur, idGeographique, nomAbonne, adr
 export const verifieConsomation = (ancienIndex, newIndex, consMoyenne, setDialogVisible, setWarningMessg) => {
   let consommation = null;
   console.log(newIndex, ancienIndex, consMoyenne)
-  if (ancienIndex != null) {
+  if (ancienIndex != null || ancienIndex != 0) {
     consommation = newIndex - ancienIndex;
   } else {
-    consommation = newIndex;
+    if (newIndex != null || newIndex != 0 || newIndex == ancienIndex) {
+      consommation = newIndex;
+    }else{
+      consommation=0
+    }
   }
 
   if (consMoyenne != null) {
@@ -109,9 +114,9 @@ export const verifieConsomation = (ancienIndex, newIndex, consMoyenne, setDialog
           if ((consMoyenne * 3 + 1) <= consommation) {
             setWarningMessg('La consommation est trés forte, voulez-vous Enregistrer?')
             console.log('consomation', consommation, 'supperieur', (consMoyenne * 3 + 1))
-          }else{
+          } else {
             if (consommation < 0) {
-              setWarningMessg("La consommation est negative , veillez verifier l'index svp")
+              setWarningMessg("La consommation est negative , veillez verifier l'index svp ,ou souhaitez-vous continer ?")
             }
           }
         }
@@ -141,16 +146,22 @@ export const updateNewIndex = (numeroCompteur, newIndex, ancienIndex, anomalie1,
       tx => {
         const onSuccess = () => {
           console.log(`Success`);
-          ToastSuccess('Compteur lu avec success!!');
-
-        };
+         // ToastSuccess('Compteur lu avec success!!');
+          ToastAndroid.showWithGravityAndOffset(
+            "Compteur lu avec success!",
+            ToastAndroid.LONG,
+            ToastAndroid.CENTER,
+            25,
+            200
+          );
+  }
         const onError = (tx, error) => {
           console.log('error', error);
           ToastEchec("Error:", error);
           // throw Error("Statement failed.");
         };
 
-        tx.executeSql(`UPDATE compteur SET nouveauIndex = '${newIndex}' ,anomalie1='${anomalie1}',anomalie2='${anomalie2}',consommation = '${consommation}', dateReleve=CURRENT_DATE,heureReleve = CURRENT_TIME,etatLecture=1
+        tx.executeSql(`UPDATE compteur SET nouveauIndex = '${newIndex}' ,anomalie1='${anomalie1}',anomalie2='${anomalie2}',consommation = '${consommation}', dateReleve=CURRENT_DATE,heureReleve = CURRENT_TIME,etatLecture='L'
           WHERE numeroCompteur='${numeroCompteur}';`,
           [],
           onSuccess, onError);
@@ -169,4 +180,24 @@ export const updateNewIndex = (numeroCompteur, newIndex, ancienIndex, anomalie1,
 
   return p;
 
+}
+
+export const refrecheCompteurs = (tourneCourant,dispatch) =>{
+  db.transaction(function (txn) {
+    txn.executeSql(
+        'SELECT * FROM compteur',
+        [],
+        (tx, res) => {
+            var temp = [];
+            let len = res.rows.length;
+            console.log('Compteur:', len);
+            for (let i = 0; i < len; ++i)
+                temp.push(res.rows.item(i));
+                const comptNonLus = temp.filter((nlu) => (nlu.etatLecture == 'NL' ))
+                const compteurByTourne = comptNonLus.filter((cmt) => cmt.numeroTourne == tourneCourant)
+               
+            dispatch(setCompteurs(compteurByTourne))
+        }
+    );
+});
 }

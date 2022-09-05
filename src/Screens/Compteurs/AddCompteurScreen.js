@@ -49,15 +49,15 @@ export default function AddCompteurScreen() {
                         }}
                         validateOnBlur={true}
                         validationSchema={validationAddCompt}
-                        onSubmit={(values) => createNewCompteur(numeroCompteur, idGeog, nomAbonne, adresse)}
+                        onSubmit={(values) => createNewCompteur(values.numeroCompteur, values.idGeog, values.nomAbonne, values.adresse)}
                     >
-                        {({ handleChange, handleBlur, handleSubmit, values, touched, isValid, errors }) => (
+                        {({ handleChange, handleBlur, handleSubmit, values, touched, resetForm, errors }) => (
 
                             <Form>
                                 <FormControle>
                                     <FormInput>
                                         <Label minWidth='25%'>N° Compt</Label>
-                                        <InputFild keyboardType='numeric' width='70%'
+                                        <InputFild keyboardType='text' width='70%'
                                             onChangeText={handleChange('numeroCompteur')}
                                             onBlur={handleBlur('numeroCompteur')}
                                             value={values.numeroCompteur} />
@@ -75,7 +75,7 @@ export default function AddCompteurScreen() {
                                              onChangeText={handleChange('idGeog')}
                                              onBlur={handleBlur('idGeog')}
                                              value={values.idGeog}
-                                            keyboardType='numeric' width='70%' />
+                                            keyboardType='text' width='70%' />
                                     </FormInput>
                                 </FormControle>
                                 {(errors.idGeog && touched.idGeog &&
@@ -115,15 +115,10 @@ export default function AddCompteurScreen() {
                                 )}
 
                                 <FormControle marginV='20px'>
-                                    <FormInput>
-                                        <TouchableOpacity style={[styles.btnPreSuv, { backgroundColor: 'tomato' }]}>
-                                            <MyButton width='75px' color='white' >Fermer</MyButton>
-                                            <Ionicons name="md-information-circle-outline" color="white" size={28} style={{ top: 2 }} />
-                                        </TouchableOpacity>
-                                    </FormInput>
+                                  
                                     <FormInput>
                                         <TouchableOpacity 
-                                            onPress={()=>handleCancel()}
+                                            onPress={resetForm}
                                             style={[styles.btnPreSuv, { backgroundColor: 'orange' }]}>
                                             <MaterialCommunityIcons name="cancel" size={24} color="white" style={[styles.chevron, { marginTop: 4 }]} />
                                             <MyButton width='80px' color='white' >Annuler</MyButton>

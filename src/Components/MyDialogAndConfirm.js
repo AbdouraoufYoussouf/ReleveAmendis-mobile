@@ -46,7 +46,7 @@ export default function MyDialogAndConfirm({ content, dialogVisible, setDialogVi
 
                         <View style={styles.body}>
                             <Text style={styles.textContent}> {content} </Text>
-                            <View style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 10 }}>
+                            <View style={{ display: "flex", flexDirection: 'row', justifyContent: 'space-between', width: '100%', paddingHorizontal: 15 }}>
 
                                 <TouchableOpacity style={[styles.fermer, { backgroundColor: '#2E64FE', width: 127, }]}
                                     onPress={() => onPressSave()} >
@@ -104,7 +104,7 @@ const styles = StyleSheet.create({
     textContent: {
         fontSize: 20,
         color: 'white',
-        paddingHorizontal: 2,
+        paddingHorizontal: 7,
         textAlign: 'left',
 
     },

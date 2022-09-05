@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { KeyboardAvoidingView, ScrollView, Text, View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Form, FormControle, MyText, InputFild, Label, FormInput, MyButton } from '../styles/homeStyle';
-import {  Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { setCompteurs } from '../../../services/redux/compteurSlice';
@@ -12,25 +12,29 @@ import MyDialog from '../../Components/MyDialog';
 import MyDialogAndConfirm from '../../Components/MyDialogAndConfirm';
 import { updateNewIndex, verifieConsomation } from '../../../services/Compteur.Service';
 import { updateUserIdTourne } from '../../../services/UserService';
+import { updateUserTerminal } from '../../../services/TerminalService';
 
 
 const PageLectureCompteur = ({ navigation, route }) => {
 
   const dispatch = useDispatch();
 
-  const { numeroCompteur, idGeographique, police, adresse, codeEtat, codeFluide, consMoyenne, ancienIndex,nomAbonne,consommation ,etatLecture} = route.params;
+  const { numeroCompteur, idGeographique, police, adresse, codeEtat, codeFluide, consMoyenne, ancienIndex, nomAbonne, consommation, etatLecture,numeroRue } = route.params;
   const compteurs = useSelector((state) => state.compteurs.compteurs);
   const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
-  const tourneData = useSelector((state) => state.tournes.tournes);
   const user = useSelector((state) => state.user.value);
-  const userId = user.userId;
+  const terminalLocal = useSelector((state) => state.terminals.terminalLocal);
+  const rue = useSelector((state) => state.rueSecteurs.rueEnlecture);
 
-  const [etat, setEtat] = useState({});
+  const userId = user.userId;
+console.log('user',user)
+console.log('terminal',terminalLocal)
+console.log('rue',rue)
   ///////////////////////// les inputes /////////////////////
   const [numCompt, setNumCompt] = useState(null);
   const [nouveauIndex, setNouveauIndex] = useState('');
-  const [anomalie1, setAnomalie1] = useState(null);
-  const [anomalie2, setAnomalie2] = useState(null);
+  const [anomalie1, setAnomalie1] = useState("");
+  const [anomalie2, setAnomalie2] = useState("");
   const [index1, setindex1] = useState();
   const [index2, setindex2] = useState();
   const [index3, setindex3] = useState();
@@ -53,12 +57,22 @@ const PageLectureCompteur = ({ navigation, route }) => {
   /// DialogAndConfirm ***********
 
   const anomaliesData = useSelector((state) => state.anomalies.designationAnomalie);
-  
-  // console.log('anomalie', compteurs)
 
+  // console.log('anomalie', compteurs)
+  const [termSearch, setTermSearch] = useState('');
+
+  const onChangeSearch = (term) => {
+    setTermSearch(term)
+    console.log('Term', term)
+  }
   const designations = anomaliesData?.map((a, index) => {
-    return { label: a.designation, value: a.codeAnomalie }
+    return { label: a.designation, value: a.designation }
   });
+
+  const designationSearch = designations.filter(desi => {
+    return desi.label.toLowerCase().includes(termSearch.toLowerCase());
+  });
+
 
   const handleAnnuler = () => {
     setAnomalie1('');
@@ -70,63 +84,40 @@ const PageLectureCompteur = ({ navigation, route }) => {
 
   const handleSubmit = (ancienIndex, newIndex, consMoyenne, numeroCompteur) => {
 
-    if (nouveauIndex === '' || nouveauIndex === 0) {
-      setErrore("Veillez saisir l'index s'il vous plait!!")
-      setModalVisible(true)
-    } else {
-      setNumCompt(numeroCompteur)
-       //console.log(newIndex, ancienIndex, consMoyenne)
-      verifieConsomation(ancienIndex, newIndex, consMoyenne, setDialogVisible, setWarningMessg);
-    }
+    setNumCompt(numeroCompteur)
+    //console.log(newIndex, ancienIndex, consMoyenne)
+    verifieConsomation(ancienIndex, newIndex, consMoyenne, setDialogVisible, setWarningMessg);
+
     console.log("index:", nouveauIndex)
     console.log("anomalie1:", anomalie1)
     console.log("anomalie2:", anomalie2)
   }
 
-  const handlSave = (numCompt, newIndex, ancienIndex, anomalie1, anomalie2) => {
+  const handlSave = (numCompt, newIndex, ancienIndex, anomalie1, anomalie2,numeroRue) => {
     setIndicator(true);
     updateNewIndex(numCompt, newIndex, ancienIndex, anomalie1, anomalie2)
 
+    let compteur = compteurs.filter((comt) => comt.numeroCompteur == numCompt)
     let newCompteurs = compteurs.filter((comt) => comt.numeroCompteur !== numCompt)
-    //console.log('newcompteur',newCompteurs)
+    console.log('newcompteurRue',compteur.numeroRue)
     handleAnnuler();
-    
+
     dispatch(setCompteurs(newCompteurs))
 
     setDialogVisible(false);
     setIndicator(false);
     navigation.navigate('homeReleve');
 
-    updateUserIdTourne(userId,tourneCourant)
+    updateUserTerminal(terminalLocal,numeroRue,user)
   }
 
   useEffect(() => {
-    db.transaction(function (txn) {
-      txn.executeSql(
-        "SELECT designation FROM etat WHERE codeEtat=?",
-        [codeEtat],
-        (tx, res) => {
-          var temp = [];
-          let len = res.rows.length;
-          for (let i = 0; i < len; ++i) {
-            temp.push(res.rows.item(i));
-          }
-          setEtat(temp[0])
-          //console.log('Etat:', temp[0]);
-        }
-      );
-    });
 
   }, [])
 
   return (
     <ScrollView
-      // refreshControl={
-      //   <RefreshControl
-      //     refreshing={refreshing}
-      //     onRefresh={onRefresh}
-      //   />
-      // }
+
       keyboardShouldPersistTaps='never'
       keyboardDismissMode='on-drag'
 
@@ -150,11 +141,11 @@ const PageLectureCompteur = ({ navigation, route }) => {
           setDialogVisible={setDialogVisible}
           indicator={indicator}
           content={WarningMessg}
-          onPressSave={() => handlSave(numCompt, nouveauIndex, ancienIndex, anomalie1, anomalie2)}
+          onPressSave={() => handlSave(numCompt, nouveauIndex, ancienIndex, anomalie1, anomalie2,numeroRue)}
           type='warning'
         />
         <View style={{ display: 'flex', flexDirection: 'column', }}>
-          <Text style={{ fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginTop : 2 }}>
+          <Text style={{ fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginTop: 2 }}>
             Releve d'un compteur {codeFluide}
           </Text>
           <Form>
@@ -195,11 +186,15 @@ const PageLectureCompteur = ({ navigation, route }) => {
             </FormControle>
 
             <FormControle>
-              <FormInput width='80%'>
+              <FormInput width='99%'>
                 <Label >AN1</Label>
                 <MySelect
+                  isSearch={true}
+                  onChangeSearch={onChangeSearch}
+                  termSearch={termSearch}
+                  setTermSearch={setTermSearch}
                   placeholder='Select Anomalie 1'
-                  data={designations}
+                  data={designationSearch}
                   label={label1}
                   setLabel={setLabel1}
                   setValue={setAnomalie1} />
@@ -207,11 +202,15 @@ const PageLectureCompteur = ({ navigation, route }) => {
             </FormControle>
 
             <FormControle>
-              <FormInput width='80%' >
+              <FormInput width='99%' >
                 <Label >AN2</Label>
                 <MySelect
+                  isSearch={true}
+                  onChangeSearch={onChangeSearch}
+                  termSearch={termSearch}
+                  setTermSearch={setTermSearch}
                   placeholder='Select Anomalie 2'
-                  data={designations}
+                  data={designationSearch}
                   label={label2}
                   setLabel={setLabel2}
                   setValue={setAnomalie2} />
@@ -309,19 +308,6 @@ const styles = StyleSheet.create({
     position: 'relative',
 
   },
-  dropBtnStyle: {
-    height: 40,
-    width: '75%',
-    marginVertical: 1,
-    backgroundColor: '#466081',
-    borderRadius: 5,
-    borderWidth: 1,
-    borderColor: '#444',
-  },
-  dropBtnTxtStyle: { color: 'rgba(255,255,255,0.7)', textAlign: 'left', marginLeft: -4 },
-  dropDropStyle: { backgroundColor: '#EFEFEF', },
-  dropRowStyle: { backgroundColor: '#EFEFEF', },
-  dropRowTxtStyle: { color: '#000', textAlign: 'left' },
 
   btnPreSuv: {
     backgroundColor: '#333333',
@@ -340,6 +326,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+
   paginationStyle: {
     position: 'absolute',
     bottom: 10,

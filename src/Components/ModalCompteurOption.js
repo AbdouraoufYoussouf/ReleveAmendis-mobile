@@ -17,7 +17,8 @@ export default function ModalCompteurOption() {
     const secteursData = useSelector((state) => state.rueSecteurs.secteurs);
     const tournesData = useSelector((state) => state.tournes.tournes);
     const isCreated = useSelector((state) => state.compteurs.isCreatec);
-    console.log(isCreated)
+    const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
+   // console.log(isCreated)
     const navigation = useNavigation();
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -29,16 +30,16 @@ export default function ModalCompteurOption() {
     const [tourne, setTourne] = useState('');
     const [rue, setRue] = useState('');
     const [secteur, setSecteur] = useState('');
-    const [labelTourne, setLabelTourne] = useState('');
+    const [labelTourne, setLabelTourne] = useState(tourneCourant);
     const [labelRue, setLabelRue] = useState('');
     const [labelSecteur, setLabelSecteur] = useState('');
+    const [compteurByTourne, setCompteurByTourne] = useState([]);
 
     const compteursData = useSelector((state) => state.compteurs.compteurs);
     const ancienCompteursData = useSelector((state) => state.compteurs.ancienCompteurs);
-    //console.log("ancien",nonluCompteurs)
-    const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
-    let nonluCompteurs = ancienCompteursData.filter((nl) => nl.etatLecture == 0 || nl.etatLecture == null)
-    const compteurByTourne = nonluCompteurs.filter((cmt) => cmt.numeroTourne == tourneCourant)
+    let nonluCompteurs = ancienCompteursData.filter((nl) => nl.etatLecture == 'NL')
+   // console.log("compteurbytourne", compteurByTourne)
+    //console.log("secteurdata", secteursData)
 
     const handleTourne = (tourne) => {
         dispatch(setTourneCourant(tourne))
@@ -49,8 +50,8 @@ export default function ModalCompteurOption() {
         setIndicator(true)
         if (rue != '') {
 
-            let parRue = compteurByTourne.filter((cmp) => cmp.numeroRue == rue && (cmp.etatLecture == 0 || cmp.etatLecture == null))
-
+            let parRue = compteurByTourne.filter((cmp) => cmp.numeroRue === rue)
+           // console.log('pardecteur', parRue)
             dispatch(setCompteurs(parRue))
             setRue('')
             setLabelRue('')
@@ -59,7 +60,7 @@ export default function ModalCompteurOption() {
                 setModalVisibleRue(false);
             }, 200);
         } else {
-            ToastAvertisement('Veillez choisir un numero de rue!')
+            ToastAvertisement('Veillez choisir un nom de rue!')
             setIndicator(false)
         }
     }
@@ -67,7 +68,7 @@ export default function ModalCompteurOption() {
         setIndicator(true)
         if (sect != '') {
 
-            let parSecteur = compteurByTourne.filter((cmp) => cmp.codeSecteur == sect && (cmp.etatLecture == 0 || cmp.etatLecture == null))
+            let parSecteur = compteurByTourne.filter((cmp) => cmp.codeSecteur === sect)
 
             dispatch(setCompteurs(parSecteur))
             setSecteur('')
@@ -101,14 +102,17 @@ export default function ModalCompteurOption() {
     });
 
     const rues = ruesData.map((a) => {
-        return { label: a.numeroRue, value: a.numeroRue }
+        return { label: a.nomRue, value: a.nomRue }
     });
 
     const secteurs = secteursData.map((a) => {
-        return { label: a.codeSecteur, value: a.codeSecteur }
+        return { label: a.designation, value: a.designation }
     });
 
     //console.log('gfgf',secteurs)
+    useEffect(() => {
+        setCompteurByTourne(nonluCompteurs.filter((cmt) => cmt.numeroTourne == tourneCourant))
+    }, [tourneCourant])
 
     return (
         <View style={styles.container}>
@@ -135,7 +139,7 @@ export default function ModalCompteurOption() {
 
                         <View style={styles.body}>
                             {
-                                isCreated ? (
+                                !isCreated ? (
                                     <TouchableOpacity style={styles.contText}
                                         onPress={() => { goto('addCompteur'), setModalVisible(false) }}>
                                         <AntDesign style={{ marginTop: 3 }} name="check" size={22} color="white" />
@@ -210,9 +214,10 @@ export default function ModalCompteurOption() {
                             <Form >
                                 <MyText color='white' marginTop='13px' large>Changement de tourné</MyText>
                                 <FormControle>
-                                    <FormInput width='75%'>
+                                    <FormInput width='85%'>
                                         <MyText color='white' large marginH='5px'>N° Tourné</MyText>
                                         <MySelect
+                                            center={true}
                                             placeholder='Selectionné Tourné'
                                             data={tournes}
                                             label={labelTourne}
@@ -273,10 +278,11 @@ export default function ModalCompteurOption() {
                             <Form >
                                 <MyText color='white' marginTop='13px' large>Choix d'une rue à lire</MyText>
                                 <FormControle>
-                                    <FormInput width='80%'>
+                                    <FormInput width='85%'>
                                         <MyText color='white' large marginH='5px'>N° Rue</MyText>
                                         <MySelect
-                                            placeholder='Select numéro Rue'
+                                            center={true}
+                                            placeholder='Select Rue'
                                             data={rues}
                                             label={labelRue}
                                             setLabel={setLabelRue}
@@ -333,10 +339,11 @@ export default function ModalCompteurOption() {
                             <Form >
                                 <MyText color='white' marginTop='13px' large>Choix du Secteur à lire</MyText>
                                 <FormControle>
-                                    <FormInput width='75%'>
+                                    <FormInput width='85%'>
                                         <MyText color='white' large marginH='5px'>N° Secteur</MyText>
                                         <MySelect
-                                            placeholder='Select numéro Secteur'
+                                            center={true}
+                                            placeholder='Select  Secteur'
                                             data={secteurs}
                                             label={labelSecteur}
                                             setLabel={setLabelSecteur}
@@ -395,7 +402,7 @@ const styles = StyleSheet.create({
         height: 'auto',
         backgroundColor: '#36382F',
         position: 'absolute',
-
+        
         right: 0,
         padding: 5
     },

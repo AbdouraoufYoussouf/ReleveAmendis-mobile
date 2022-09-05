@@ -1,6 +1,6 @@
 import {configureStore} from '@reduxjs/toolkit';
 import userReducer from './userSlice';
-import anomaliesReducer from './anomalieSlice';
+import anomalieReducer from './anomalieSlice';
 import compteursReducer from './compteurSlice';
 import rueSecteurReducer from './rueSecteurSlice';
 import tourneReducer from './tourneSlice';
@@ -9,7 +9,7 @@ import terminalReducer from './terminalSlice';
 export const store = configureStore({
     reducer : {
         user : userReducer,
-        anomalies : anomaliesReducer,
+        anomalies : anomalieReducer,
         compteurs : compteursReducer,
         rueSecteurs : rueSecteurReducer,
         tournes : tourneReducer,

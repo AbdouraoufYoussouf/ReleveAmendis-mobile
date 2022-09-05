@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react'
-import { ScrollView, Text, View, FlatList, TouchableOpacity, StyleSheet, useWindowDimensions } from 'react-native';
+import { ScrollView, Text, View, FlatList, TouchableOpacity, StyleSheet, useWindowDimensions, RefreshControl } from 'react-native';
 import { Form, FormControle, InputFild, FormInput, FormContainer } from '../styles/homeStyle';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
@@ -7,23 +7,29 @@ import { useDispatch, useSelector } from 'react-redux';
 
 import { Icone, Icone1 } from '../../Connexion/styles';
 import { setCompteurs } from '../../../services/redux/compteurSlice';
+import { AddDataToStore } from '../../../services/AddDataTotore';
+import db from '../../../services/SqliteDb';
+import { refrecheCompteurs } from '../../../services/Compteur.Service';
 
+const wait = (timeout) => {
+  return new Promise(resolve => setTimeout(resolve, timeout));
+}
 export default function HomeReleveScreen1({ navigation }) {
   const dispatch = useDispatch();
-  const {height, width } = useWindowDimensions();
+  const { height, width } = useWindowDimensions();
 
   ///////////////////////// les données /////////////////////
   const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
 
   const datas = useSelector((state) => state.compteurs.ancienCompteurs);
   const compteurs = useSelector((state) => state.compteurs.compteurs);
-  const compteurByTourne = compteurs.filter(comt => comt.numeroTourne == tourneCourant)
   const [termSearch, setTermSearch] = useState('');
+
   const compteursSearch = compteurs.filter(cmpt => {
-    return cmpt.numeroCompteur.includes(termSearch);
+    return cmpt.numeroCompteur.toLowerCase().includes(termSearch.toLowerCase());
   });
 
-  //console.log('tourne', tourneCourant)
+  //console.log('compteurs', compteurs)
 
 
   /// Dialog ***********
@@ -36,18 +42,18 @@ export default function HomeReleveScreen1({ navigation }) {
   const FlatList_Header = () => {
     return (
       <View style={{ height: 35, width: width, }} >
-        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start',marginTop:4}}>
+        <View style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-start', marginTop: 4 }}>
           <Text style={{ fontSize: 18, fontWeight: 'bold', width: width / 12, color: 'black', textAlign: 'center' }}> ID</Text>
           <Text style={{ fontSize: 18, fontWeight: 'bold', width: width / 3, color: 'black', textAlign: 'center' }}> N° Compteur</Text>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: width / 3, color: 'black', textAlign: 'center' }}> N° Tourne</Text>
-          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 5 * width / 12, color: 'black', textAlign: 'center' }}> Adresse</Text>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', width: width / 3, color: 'black', textAlign: 'center' }}> Nom Rue</Text>
+          <Text style={{ fontSize: 18, fontWeight: 'bold', width: 5 * width / 12, color: 'black', textAlign: 'center' }}> Nom Aboné</Text>
         </View>
 
       </View>
     );
   }
 
-  const ItemRender = ({ numeroCompteur,codeSecteur, compteurId, idGeographique, police, codeEtat, adress, index, codeFluide, ancienIndex, consMoyenne,nomAbonne,etatLecture,consommation }) => (
+  const ItemRender = ({ numeroCompteur, codeSecteur, compteurId, idGeographique, police, codeEtat, adress, index, codeFluide, ancienIndex, consMoyenne, nomAbonne, etatLecture, consommation, numeroRue }) => (
     <TouchableOpacity
       onPress={() => {
         navigation.navigate('pagelecture', {
@@ -60,6 +66,7 @@ export default function HomeReleveScreen1({ navigation }) {
           consMoyenne: consMoyenne,
           ancienIndex: ancienIndex,
           nomAbonne: nomAbonne,
+          numeroRue: numeroRue,
           etatLecture: etatLecture,
           consommation: consommation,
         });
@@ -67,8 +74,8 @@ export default function HomeReleveScreen1({ navigation }) {
       key={index} style={[styles.item, index % 2 && { backgroundColor: '#D0C9C0' }]}>
       <Text style={{ fontSize: 17, color: 'black', width: width / 12, textAlign: 'center' }}>{compteurId}</Text>
       <Text style={{ fontSize: 17, color: 'black', width: width / 3, textAlign: 'center' }}>{numeroCompteur}</Text>
-      <Text style={{ fontSize: 17, color: 'black', width: width / 3, textAlign: 'center' }}>{codeSecteur}</Text>
-      <Text style={{ fontSize: 14, color: 'black', width: width, textAlign: 'center' }}>{adress}</Text>
+      <Text style={{ fontSize: 17, color: 'black', width: width / 3, textAlign: 'center' }}>{numeroRue}</Text>
+      <Text style={{ fontSize: 14, color: 'black', width: width / 2, textAlign: 'center' }}>{nomAbonne}</Text>
 
     </TouchableOpacity>
   );
@@ -78,14 +85,21 @@ export default function HomeReleveScreen1({ navigation }) {
     );
   }
 
-  const onChangeSearch = (term)=>{
+  const onChangeSearch = (term) => {
     setTermSearch(term)
     //console.log('Term',term)
   }
 
-  useEffect(()=>{
-    
-  })
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    dispatch(setCompteurs([]));
+    refrecheCompteurs(tourneCourant,dispatch)
+    wait(1000).then(() => setRefreshing(false));
+  }, []);
+
+  useEffect(() => {
+
+  }, [tourneCourant])
 
   return (
     <FormContainer  >
@@ -115,36 +129,44 @@ export default function HomeReleveScreen1({ navigation }) {
           </Icone>
         </FormInput>
       </FormControle>
-      <Text style={{ backgroundColor:'green',fontSize: 18, fontWeight: 'bold', width: '100%', color: 'white', height: 32, paddingVertical: 3, textAlign: 'center' }}>Liste des compteurs à lire {compteurs.length}/{datas.length} </Text>
+      <Text style={{ backgroundColor: 'green', fontSize: 18, fontWeight: 'bold', width: '100%', color: 'white', height: 32, paddingVertical: 3, textAlign: 'center' }}>Liste des compteurs à lire {compteurs.length}/{datas.length} </Text>
 
       {/* la liste des compteurs non compteurId */}
 
-      <View style={{ width: width,marginBottom:70 }} >
-      <ScrollView  showsVerticalScrollIndicator={false}>
-        <ScrollView horizontal={true} bounces={false}>
-          <FlatList
-            data={compteursSearch}
-            renderItem={({ item, index }) => <ItemRender index={index}
-              idGeographique={item.idGeographique}
-              police={item.police}
-              numeroCompteur={item.numeroCompteur}
-              compteurId={item.compteurId}
-              codeSecteur={item.codeSecteur}
-              codeEtat={item.codeEtat}
-              adress={item.adresse}
-              ancienIndex={item.ancienIndex}
-              consMoyenne={item.consMoyenne}
-              nomAbonne={item.nomAbonne}
-              etatLecture={item.etatLecture}
-              consommation={item.consommation}
-              codeFluide={item.codeFluide} />}
-            keyExtractor={item => item.compteurId}
-            ItemSeparatorComponent={ItemDivider}
-            ListHeaderComponent={FlatList_Header}
-            ListHeaderComponentStyle={{ borderBottomWidth: 2 }}
-          />
+      <View style={{ width: width, marginBottom: 80 }} >
+        <ScrollView showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+            />
+          }
+        >
+          <ScrollView horizontal={true} bounces={false}>
+            <FlatList
+              data={compteursSearch}
+              renderItem={({ item, index }) => <ItemRender index={index}
+                idGeographique={item.idGeographique}
+                police={item.police}
+                numeroCompteur={item.numeroCompteur}
+                compteurId={item.compteurId}
+                codeSecteur={item.codeSecteur}
+                codeEtat={item.codeEtat}
+                adress={item.adresse}
+                ancienIndex={item.ancienIndex}
+                consMoyenne={item.consMoyenne}
+                nomAbonne={item.nomAbonne}
+                etatLecture={item.etatLecture}
+                numeroRue={item.numeroRue}
+                consommation={item.consommation}
+                codeFluide={item.codeFluide} />}
+              keyExtractor={item => item.compteurId}
+              ItemSeparatorComponent={ItemDivider}
+              ListHeaderComponent={FlatList_Header}
+              ListHeaderComponentStyle={{ borderBottomWidth: 2 }}
+            />
 
-        </ScrollView>
+          </ScrollView>
         </ScrollView>
       </View>
     </FormContainer>

@@ -23,27 +23,29 @@ export default function MyDialog({ content, modalVisible, setModalVisible, type 
                         {/* Succés */}
                         {
                             type == 'success' ? (
-                                <View style={{ width: '100%', height: 40, flexDirection: 'row', justifyContent: 'center', marginTop: 5, borderRadius: 5 }}>
-                                    <Text style={[styles.titre, { color: 'green' }]}>Succés</Text>
-                                    <AntDesign name="checkcircle" size={30} color="green" />
-                                </View>
+                                // <View style={{ width: '100%', height: 40, flexDirection: 'row', justifyContent: 'center', marginTop: 5, borderRadius: 5 }}>
+                                //     {/* <Text style={[styles.titre, { color: 'green' }]}>Succés</Text> */}
+                                //     <AntDesign name="checkcircle" size={30} color="green" />
+                                // </View>
+                                <View style={{ width: 70, height: 5, marginTop: 10, backgroundColor: 'green', alignSelf: 'center', borderRadius: 5 }}></View>
                             ) : type == 'warning' ? (
                                 //    Avertissement 
-                                <View style={{ width: '100%', height: 40, flexDirection: 'row', justifyContent: 'center', marginTop: 5, borderRadius: 5 }}>
-                                    <Text style={[styles.titre, { color: 'yellow' }]}>Avertissement</Text>
-                                    <Ionicons name="warning" size={30} color="yellow" />
-                                </View>
+                                // <View style={{ width: '100%', height: 40, flexDirection: 'row', justifyContent: 'center', marginTop: 5, borderRadius: 5 }}>
+                                //     <Text style={[styles.titre, { color: 'yellow' }]}>Avertissement</Text>
+                                //     <Ionicons name="warning" size={30} color="yellow" />
+                                // </View>
+                                <View style={{ width: 70, height: 5, marginTop: 10, backgroundColor: 'yellow', alignSelf: 'center', borderRadius: 5 }}></View>
                             ) : type == 'danger' ? (
-                                <View style={{ width: '100%', height: 40, flexDirection: 'row', justifyContent: 'center', marginTop: 5, borderRadius: 5 }}>
-                                    <Text style={[styles.titre, { color: 'tomato' }]}>Echec</Text>
-                                    <MaterialIcons name="dangerous" size={30} color="tomato" />
-                                </View>
+                                // <View style={{ width: '100%', height: 40, flexDirection: 'row', justifyContent: 'center', marginTop: 5, borderRadius: 5 }}>
+                                //     {/* <Text style={[styles.titre, { color: 'tomato' }]}>Echec</Text> */}
+                                //     <MaterialIcons name="dangerous" size={30} color="tomato" />
+                                // </View>
+                                <View style={{ width: 70, height: 5, marginTop: 10, backgroundColor: 'tomato', alignSelf: 'center', borderRadius: 5 }}></View>
                             ) : (<></>)
                         }
 
 
 
-                        <View style={{ width: 70, height: 5, backgroundColor: 'white', alignSelf: 'center', borderRadius: 5 }}></View>
 
                         <View style={styles.body}>
                             <Text style={styles.textContent}> {content} </Text>

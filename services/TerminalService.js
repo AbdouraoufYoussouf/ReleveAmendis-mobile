@@ -25,8 +25,8 @@ export const addAllTerminalsToStore = async (dispatch) => {
 }
 
 
-export const addTerminalToStore = async (terminalNumber,dispatch) => {
-  await axios.get(url+'/'+terminalNumber)
+export const addTerminalToStore = async (terminalNumber, dispatch) => {
+  await axios.get(url + '/' + terminalNumber)
     .then(function (response) {
       //console.log(response.data);
       dispatch(getTerminal(response.data))
@@ -48,68 +48,83 @@ export const updateTerminalOccupy = (terminalNumber) => {
       console.log("AXIOS ERROR: ", err);
     })
 }
+export const updateUserTerminal = (terminal, rue, user) => {
+
+  const myterminal = {
+    "status": user != null ? "onLigne" : "",
+    "rueName": rue ? rue : "",
+    "userName": user!= null ? user.nom : ""
+  }
+  axios.put(url + '/user/' + terminal.numeroTPL, myterminal, axiosConfig)
+    .then((res) => {
+      console.log(' user et status terminal mis à jour avec succés', res)
+    })
+    .catch((err) => {
+      console.log("AXIOS ERROR: ", err);
+    })
+}
 
 export const updateTerminalLocal = (terminalNumber, isCreatec) => {
   const p = new Promise((resolve, reject) => {
-  db.transaction(
-    tx => {
-      const onSuccess = () => {
-        console.log(`Success`);
-       
-        //ToastSuccess('Terminal mis à jour avec success!!');
-      };
+    db.transaction(
+      tx => {
+        const onSuccess = () => {
+          console.log(`Success`);
 
-      const onError = (tx, error) => {
-        console.log('error', error);
-        ToastEchec("Error:", error);
-        // throw Error("Statement failed.");
-      };
+          //ToastSuccess('Terminal mis à jour avec success!!');
+        };
 
-      tx.executeSql(`UPDATE terminal SET numeroTPL = '${terminalNumber}' ,isCreatec='${isCreatec}'
+        const onError = (tx, error) => {
+          console.log('error', error);
+          ToastEchec("Error:", error);
+          // throw Error("Statement failed.");
+        };
+
+        tx.executeSql(`UPDATE terminal SET numeroTPL = '${terminalNumber}' ,isCreatec='${isCreatec}'
         WHERE terminalId=1;`,
-        [],
-        onSuccess, onError);
-    },
-    () => {
-      console.log(`TX fail`);
-      reject();
-    },
-    () => {
-      console.log(`TX OK.`);
-      resolve();
-    }
-  );
-});
-} 
+          [],
+          onSuccess, onError);
+      },
+      () => {
+        console.log(`TX fail`);
+        reject();
+      },
+      () => {
+        console.log(`TX OK.`);
+        resolve();
+      }
+    );
+  });
+}
 export const updateTerminalIsCreateLocal = (isCreatec) => {
   const p = new Promise((resolve, reject) => {
-  db.transaction(
-    tx => {
-      const onSuccess = () => {
-        console.log(`Success isCreate`);
-       
-        //ToastSuccess('Terminal mis à jour avec success!!');
-      };
+    db.transaction(
+      tx => {
+        const onSuccess = () => {
+          console.log(`Success isCreate`, isCreatec);
 
-      const onError = (tx, error) => {
-        console.log('error', error);
-        ToastEchec("Error:", error);
-        // throw Error("Statement failed.");
-      };
+          //ToastSuccess('Terminal mis à jour avec success!!');
+        };
 
-      tx.executeSql(`UPDATE terminal SET isCreatec='${isCreatec}'
+        const onError = (tx, error) => {
+          console.log('error', error);
+          ToastEchec("Error:", error);
+          // throw Error("Statement failed.");
+        };
+
+        tx.executeSql(`UPDATE terminal SET isCreatec='${isCreatec}'
         WHERE terminalId=1;`,
-        [],
-        onSuccess, onError);
-    },
-    () => {
-      console.log(`TX fail`);
-      reject();
-    },
-    () => {
-      console.log(`TX OK.`);
-      resolve();
-    }
-  );
-});
+          [],
+          onSuccess, onError);
+      },
+      () => {
+        console.log(`TX fail`);
+        reject();
+      },
+      () => {
+        console.log(`TX OK.`);
+        resolve();
+      }
+    );
+  });
 } 

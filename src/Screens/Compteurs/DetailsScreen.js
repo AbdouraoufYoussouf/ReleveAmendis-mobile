@@ -4,25 +4,10 @@ import db from '../../../services/SqliteDb';
 import compteur from '../../Images/compteur.png'
 
 export default function DetailsScreen({ route }) {
-    const { numero, idGeo, police, abonne, adresse, codeEtat, lecture,ancienIndex,newIndex,consMoyenne,consommation } = route.params;
-    const [etat, setEtat] = useState({});
+    const { numero, idGeo, police, abonne, adresse, codeEtat, lecture, ancienIndex, newIndex, consMoyenne, consommation } = route.params;
 
     useEffect(() => {
-        db.transaction(function (txn) {
-            txn.executeSql(
-                "SELECT designation FROM etat WHERE codeEtat=?",
-                [codeEtat],
-                (tx, res) => {
-                    var temp = [];
-                    let len = res.rows.length;
-                    for (let i = 0; i < len; ++i) {
-                        temp.push(res.rows.item(i));
-                    }
-                    setEtat(temp[0])
-                    //console.log('Etat:', temp[0]);
-                }
-            );
-        });
+
 
     }, [])
 
@@ -58,26 +43,26 @@ export default function DetailsScreen({ route }) {
                     </View>
                     <View style={styles.item}>
                         <Text style={styles.itemLeft}>Etats:</Text>
-                        <Text style={styles.itemRigth}>{etat.designation}</Text>
+                        <Text style={styles.itemRigth}>{codeEtat}</Text>
                     </View>
                     <View style={styles.item}>
                         <Text style={styles.itemLeft}>Lecture:</Text>
                         <Text style={styles.itemRigth}>{lecture}</Text>
                     </View>
                     <View style={styles.item}>
-                        <Text style={[styles.itemLeft,{width: '35%'}]}>AncienIndex:</Text>
+                        <Text style={[styles.itemLeft, { width: '35%' }]}>AncienIndex:</Text>
                         <Text style={styles.itemRigth}>{ancienIndex}</Text>
                     </View>
                     <View style={styles.item}>
-                        <Text style={[styles.itemLeft,{width: '49%'}]}>NouveauIndex:</Text>
+                        <Text style={[styles.itemLeft, { width: '49%' }]}>NouveauIndex:</Text>
                         <Text style={styles.itemRigth}>{newIndex}</Text>
                     </View>
                     <View style={styles.item}>
-                        <Text style={[styles.itemLeft,{width: '55%'}]}>Consomation Moyenne:</Text>
+                        <Text style={[styles.itemLeft, { width: '55%' }]}>Consomation Moyenne:</Text>
                         <Text style={styles.itemRigth}>{consMoyenne}</Text>
                     </View>
                     <View style={styles.item}>
-                        <Text style={[styles.itemLeft,{width: '35%'}]}>Consomation:</Text>
+                        <Text style={[styles.itemLeft, { width: '35%' }]}>Consomation:</Text>
                         <Text style={styles.itemRigth}>{consommation}</Text>
                     </View>
 
@@ -112,12 +97,12 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between'
     },
     itemLeft: {
-        marginLeft: 5, fontSize: 19, width: '25%', textAlign: 'left',fontWeight:'bold'
+        marginLeft: 5, fontSize: 19, width: '25%', textAlign: 'left', fontWeight: 'bold'
     },
     itemRigth: {
         fontSize: 19, width: '74%', textAlign: 'left',
         fontStyle: 'italic',
         paddingRight: 10,
-        paddingLeft:5
+        paddingLeft: 5
     }
 })  

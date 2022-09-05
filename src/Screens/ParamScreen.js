@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { AntDesign, MaterialCommunityIcons, Ionicons, Entypo } from "@expo/vector-icons";
 import { useDispatch, useSelector } from "react-redux";
+import { DotIndicator, UIActivityIndicator, } from 'react-native-indicators';
 
 import { StyleSheet, Text, View, Pressable, TouchableOpacity, Modal, Switch } from "react-native";
 import { useNavigation } from '@react-navigation/native';
@@ -8,15 +9,16 @@ import { ModalConfigureTerminal } from "../Components/ModalConfigureTerminal";
 import { AddDataToStore } from "../../services/AddDataTotore";
 import { updateTerminalIsCreateLocal, updateTerminalLocal } from "../../services/TerminalService";
 import { editTerminalLocalStore, isCreateCompteur, isDbExist, isDbNotExist } from "../../services/redux/terminalSlice";
-import db, { dropAllTables, seedDatabase } from "../../services/SqliteDb";
+import db, { createDatabase, dropAllTables } from "../../services/SqliteDb";
 import { insertAllAnomalies, insertAllFluides } from "../../services/Anomalie.Service";
-import { ToastAvertisement } from "../Components/Notifications";
+import { ToastAvertisement, ToastSuccess } from "../Components/Notifications";
 
 export default function ParamScreen() {
 
   const dispatch = useDispatch()
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
+  const [indicatorCreate, setIndicatorCreate] = useState(false);
   const [modalVisibleTerminal, setModalVisibleTerminal] = useState(false);
   const terminalLocal = useSelector((state) => state.terminals.terminalLocal);
   const createCompteur = useSelector((state) => state.terminals.isCreatec);
@@ -24,32 +26,16 @@ export default function ParamScreen() {
 
   const [isEnabled, setIsEnabled] = useState(terminalLocal?.isCreatec == 1 ? true : false);
 
-
+console.log(terminalLocal?.isCreatec)
   const toggleSwitch = () => {
     setIsEnabled(previousState => !previousState);
+    dispatch(isCreateCompteur(!isEnabled))
+    updateTerminalIsCreateLocal(!isEnabled == true ? 1 : 0)
   }
 
-  function handleIsCreate() {
-
-    db.transaction(function (txn) {
-      txn.executeSql(`SELECT * from terminal`,
-        [],
-        function (tx, res) {
-          if (res.rows.length == 0) {
-            updateTerminalIsCreateLocal(isEnabled ? 1 : 0)
-            dispatch(isCreateCompteur(isEnabled))
-            console.log('creer compteur = ', isEnabled)
-          }
-        }
-      );
-    });
-
-  }
-  //console.log('terminalLocal',createCompteur )
-  // console.log('elabless',isEnabled)
 
   useEffect(() => {
-    handleIsCreate()
+    //handleIsCreate()
   }, [isEnabled])
 
   function toggleModal() {
@@ -66,6 +52,7 @@ export default function ParamScreen() {
   }
 
   const createDb = () => {
+    setIndicatorCreate(true)
     if (dbExist) {
       db.transaction(function (txn) {
         txn.executeSql(`SELECT * from anomalie`,
@@ -74,20 +61,23 @@ export default function ParamScreen() {
           if (res.rows.length == 0) {
             
             console.log('add data')
-              insertAllAnomalies();
-              insertAllFluides();
+              insertAllAnomalies(dispatch);
+              insertAllFluides(dispatch);
               //toggleModal();
               setTimeout(() => {
-                AddDataToStore(dispatch);
-              }, 3000);
+                //AddDataToStore(dispatch);
+                setIndicatorCreate(false)
+                ToastSuccess('La base des données est créer avec des données ajoutés !')
+              }, 1000);
             } else {
+              setIndicatorCreate(false)
               ToastAvertisement('La base des données exist déjà !')
             }
           }
         );
       });
     }else{
-      seedDatabase();
+      createDatabase();
       dispatch(isDbExist())
       db.transaction(function (txn) {
         txn.executeSql(`SELECT * from anomalie`,
@@ -96,13 +86,16 @@ export default function ParamScreen() {
           if (res.rows.length == 0) {
             
             console.log('add data')
-              insertAllAnomalies();
-              insertAllFluides();
-              //toggleModal();
-              setTimeout(() => {
-                AddDataToStore(dispatch);
-              }, 3000);
-            } else {
+            insertAllAnomalies(dispatch);
+            insertAllFluides(dispatch);
+            setIndicatorCreate(false)
+            ToastSuccess('La base des données est créer avec des données ajoutés !')
+            //toggleModal();
+            setTimeout(() => {
+              //AddDataToStore(dispatch);
+            }, 3000);
+          } else {
+              setIndicatorCreate(false)
               ToastAvertisement('La base des données exist déjà !')
             }
           }
@@ -111,6 +104,7 @@ export default function ParamScreen() {
     }
 
   }
+
   const deleteDb = () => {
     if (dbExist) {
       dropAllTables()
@@ -162,7 +156,14 @@ export default function ParamScreen() {
               onPress={()=>createDb()}
               >
                 <Entypo style={{ margin: 3 }} name="database" size={24} color="white" />
-                <Text  style={{ fontSize: 20, color: 'white' }}>Créer DB & Inserer data</Text>
+                {
+                  indicatorCreate?(
+                    <DotIndicator color='gray' size={15} style={{display:'flex',alignSelf:'center'}} />
+                  ):(
+                    <Text  style={{ fontSize: 20, color: 'white' }}>Créer DB & Inserer data</Text>
+                  )
+                }
+
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.contText}
@@ -183,12 +184,11 @@ export default function ParamScreen() {
 
               </TouchableOpacity>
 
-              <TouchableOpacity style={[styles.contText, { marginBottom: 3 }]}
+              {/* <TouchableOpacity style={[styles.contText, { marginBottom: 3 }]}
                 onPress={() => { setModalVisible(false), setModalVisibleTerminal(true) }}>
                 <Ionicons name="md-information-circle-outline" style={{ marginTop: 3 }}  size={27} color="white" />
                 <Text style={styles.modalText}>Apropos du Terminal</Text>
-
-              </TouchableOpacity>
+              </TouchableOpacity> */}
 
               <View style={{ height: 50, width: 79, backgroundColor: '#444', justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -50, right: 0, }} >
 
@@ -238,6 +238,7 @@ const styles = StyleSheet.create({
   },
   modalContent: {
     borderTopLeftRadius: 20,
+    borderBottomLeftRadius: 10,
     width: 'auto',
     height: 'auto',
     position: 'absolute',

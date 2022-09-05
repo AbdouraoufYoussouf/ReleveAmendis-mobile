@@ -5,7 +5,7 @@ export const ToastSuccess = (title) => {
     type: ALERT_TYPE.SUCCESS,
     title: 'success',
     textBody: title,
-    autoClose: 3000,
+    autoClose: 2000,
 
   })
 }
@@ -23,7 +23,7 @@ export const ToastAvertisement = (title) => {
     type: ALERT_TYPE.WARNING,
     title: 'Avertissement',
     textBody: title,
-    autoClose: 5000,
+    autoClose: 3000,
 
   })
 }

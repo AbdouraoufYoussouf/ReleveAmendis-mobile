@@ -13,9 +13,10 @@ export const ModalConfigureTerminal = ({ modalVisibleTerminal, setModalVisibleTe
   const dispatch = useDispatch()
   const allTerminals = useSelector((state) => state.terminals.terminals);
   const terminalLocal = useSelector((state) => state.terminals.terminalLocal);
+  const isCreatec = useSelector((state) => state.terminals.isCreatec);
   const dbExist = useSelector((state) => state.terminals.isDbExist);
   const [label1, setLabel1] = useState(terminalLocal?.numeroTPL);
-  console.log('db exist', dbExist)
+  console.log('create compteur', isCreatec)
 
   /// Dialog ***********
   const [modalVisible, setModalVisible] = useState(false);
@@ -24,13 +25,15 @@ export const ModalConfigureTerminal = ({ modalVisibleTerminal, setModalVisibleTe
 
   const [terminal, setTerminal] = useState(terminalLocal?.numeroTPL);
 
-  //console.log('termianl', terminalLocal)
+ 
 
-  const terminalsNoOccupy = allTerminals?.filter((termi) => termi.isOccupy == false)
-  const terminals = terminalsNoOccupy?.map((t) => {
+  //  const terminalsNoOccupy = allTerminals?.filter((termi) => termi.isOccupy == false)
+  const terminals = allTerminals?.map((t) => {
     return { label: t.terminalNumber, value: t.terminalNumber }
   });
 
+  const termianlExist = allTerminals.find((term) => term.terminalNumber.toLowerCase() === terminal.toLowerCase());
+  //console.log('existe terminal', termianlExist != null)
   const handlSaveTerminal = () => {
 
     if (!dbExist) {
@@ -39,19 +42,25 @@ export const ModalConfigureTerminal = ({ modalVisibleTerminal, setModalVisibleTe
       setErrore("Veillez d'abord créer la base des données s'il vous plait!!")
       setModalVisible(true)
     } else {
-      updateTerminalLocal(terminal, terminalLocal?.isCreatec)
-      updateTerminalOccupy(terminal)
-      dispatch(editTerminalStore({ terminalNumber: terminal, isOccupy: true }))
+      if (termianlExist != null) {
+        updateTerminalLocal(terminal, terminalLocal?.isCreatec)
+        updateTerminalOccupy(terminal)
+        dispatch(editTerminalStore({ terminalNumber: terminal, isOccupy: true }))
 
-      console.log('Termial Configuré!')
-      ToastAndroid.showWithGravityAndOffset(
-        "Termial Configuré avec le N° " + terminal,
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-        25,
-        200
-      );
-      dispatch(editTerminalLocalStore({ idTerminal: 1, terminalNumber: terminal, isCreatec: terminalLocal?.isCreatec }))
+        console.log('Termial Configuré!')
+        ToastAndroid.showWithGravityAndOffset(
+          "Termial Configuré avec le N° " + terminal,
+          ToastAndroid.LONG,
+          ToastAndroid.BOTTOM,
+          25,
+          200
+        );
+        dispatch(editTerminalLocalStore({ idTerminal: 1, terminalNumber: terminal, isCreatec: terminalLocal?.isCreatec }))
+
+      } else {
+        setErrore("Ce numero du terminal n'est pas parmi les numero valide, veillez verifier et ressayer!")
+        setModalVisible(true)
+      }
 
     }
 
@@ -80,22 +89,18 @@ export const ModalConfigureTerminal = ({ modalVisibleTerminal, setModalVisibleTe
             <View>
               <Form marginTop='20px'>
                 <FormControle>
-                  <FormInput width='75%'>
-                    <Label color='white' ></Label>
-                    <MySelect
-                      placeholder='Select Terminal'
-                      data={terminals}
-                      label={label1}
-                      setLabel={setLabel1}
-                      setValue={setTerminal}
-                      center={true}
+                  <FormInput >
+                    <Label color='#fff' minWidth='39%'>N° du Terminal</Label>
+                    <InputFild width='58%'
+                      value={terminal}
+                      onChangeText={text => setTerminal(text)}
                     />
                   </FormInput>
                 </FormControle>
 
                 <FormControle marginV='15px'>
                   <FormInput>
-                    <TouchableOpacity onPress={() => setLabel1('')} style={[styles.btnPreSuv, { backgroundColor: 'tomato' }]}>
+                    <TouchableOpacity onPress={() => setTerminal('')} style={[styles.btnPreSuv, { backgroundColor: 'tomato' }]}>
                       <MyButton width='85px' color='white' >Annuler</MyButton>
                       <Ionicons name="md-information-circle-outline" color="white" size={28} style={{ top: 2 }} />
                     </TouchableOpacity>

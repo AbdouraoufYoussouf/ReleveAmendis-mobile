@@ -1,21 +1,28 @@
 import React, { useState } from 'react'
-import { View, SectionList, SafeAreaView, ScrollView, FlatList, TouchableOpacity, Text, StyleSheet } from 'react-native'
+import { View, SectionList, SafeAreaView, ScrollView, FlatList, TouchableOpacity, Text, StyleSheet, RefreshControl } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux';
-import { loding, notLoding, setIdCompteur, setRouteCompteur } from '../../../services/redux/compteurSlice';
+import { refrecheCompteurs } from '../../../services/Compteur.Service';
+import { loding, notLoding, setCompteurs, setIdCompteur, setRouteCompteur } from '../../../services/redux/compteurSlice';
 
 export default function NonlusCompteurScreen({ navigation }) {
 
-    const compteurs = useSelector((state) => state.compteurs.compteurs);
     const dispatch = useDispatch();
+    const compteurs = useSelector((state) => state.compteurs.compteurs);
+    const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
 
-    console.log('nonlus',compteurs)
+    console.log('nonlus', compteurs)
 
-    const goToHomeWithID = (id) => {
-        dispatch(loding())
-        dispatch(setIdCompteur(id - 1));
-        navigation.navigate('home');
-        dispatch(notLoding());
+    const wait = (timeout) => {
+        return new Promise(resolve => setTimeout(resolve, timeout));
     }
+    const [refreshing, setRefreshing] = useState(false);
+    const onRefresh = React.useCallback(() => {
+        setRefreshing(true);
+        dispatch(setCompteurs([]));
+        refrecheCompteurs(tourneCourant,dispatch)
+        wait(1000).then(() => setRefreshing(false));
+    }, []);
+
 
     const FlatList_Header = () => {
         return (
@@ -28,27 +35,39 @@ export default function NonlusCompteurScreen({ navigation }) {
                 alignItems: 'center',
             }}>
 
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 50, color: 'black', height: 30, textAlign: 'center' }}> ID </Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 80, color: 'black', height: 30, borderLeftWidth: 1, }}> Numero </Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 80, color: 'black', borderLeftWidth: 1, height: 30, }}> IdGeo </Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 80, color: 'black', borderLeftWidth: 1, height: 30, }}> Police </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 40, color: 'black', height: 30, }}> ID </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 120, color: 'black', height: 30, borderLeftWidth: 1, }}> Numero </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 120, color: 'black', borderLeftWidth: 1, height: 30, }}> IdGeo </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 100, color: 'black', borderLeftWidth: 1, height: 30, }}> Police </Text>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', width: 185, color: 'black', borderLeftWidth: 1, height: 30, }}> Abonné </Text>
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 80, color: 'black', borderLeftWidth: 1, height: 30, }}> adresse </Text>
 
             </View>
         );
     }
 
-    const ItemRender = ({ idCompteur,compteurId, numero, idGeo, police, abonne, adress, index }) => (
+    const ItemRender = ({ etatLecture, consommation, consMoyenne, codeFluide, codeEtat, ancienIndex, numero, idGeo, police, abonne, adress, index }) => (
         <TouchableOpacity key={index}
-            onPress={() => goToHomeWithID(compteurId)}
+            onPress={() => {
+                navigation.navigate('pagelecture', {
+                    numeroCompteur: numero,
+                    idGeographique: idGeo,
+                    police: police,
+                    adresse: adress,
+                    codeEtat: codeEtat,
+                    codeFluide: codeFluide,
+                    consMoyenne: consMoyenne,
+                    ancienIndex: ancienIndex,
+                    nomAbonne: abonne,
+                    etatLecture: etatLecture,
+                    consommation: consommation,
+                });
+            }}
             style={[styles.item, index % 2 && { backgroundColor: '#D0C9C0' }]}>
-            <Text style={{ fontSize: 16, marginLeft: 3, width: 50, color: 'black', textAlign: 'center' }}>{idCompteur}</Text>
-            <Text style={{ fontSize: 16, marginLeft: 3, width: 80, color: 'black' }}>{numero}</Text>
-            <Text style={{ fontSize: 16, width: 80, color: 'black' }}>{idGeo}</Text>
-            <Text style={{ fontSize: 16, width: 80, color: 'black' }}>{police}</Text>
+            <Text style={{ fontSize: 16, width: 40, color: 'black', textAlign: 'center' }}>{index + 1}</Text>
+            <Text style={{ marginLeft: 5, fontSize: 16, marginLeft: 0, width: 120, color: 'black', textAlign: 'center' }}>{numero}</Text>
+            <Text style={{ marginLeft: 5, fontSize: 16, width: 120, color: 'black', textAlign: 'center' }}>{idGeo}</Text>
+            <Text style={{ marginLeft: 2, fontSize: 16, width: 100, color: 'black', textAlign: 'center' }}>{police}</Text>
             <Text style={{ fontSize: 16, width: 185, marginHorizontal: 3, color: 'black' }}>{abonne}</Text>
-            <Text style={{ fontSize: 16, width: 'auto', marginHorizontal: 3, color: 'black' }}>{adress}</Text>
         </TouchableOpacity>
     );
     const ItemDivider = () => {
@@ -67,18 +86,38 @@ export default function NonlusCompteurScreen({ navigation }) {
     return (
 
         <View style={styles.container} >
-            <ScrollView  showsVerticalScrollIndicator={false}>
-            <ScrollView horizontal={true} bounces={false}>
-                <FlatList
-                    data={compteurs}
-                    renderItem={({ item, index }) => <ItemRender compteurId={item.compteurId} idCompteur={item.compteurId} index={index} numero={item.numeroCompteur} idGeo={item.idGeographique} police={item.police} abonne={item.nomAbonne} adress={item.adresse} />}
-                    keyExtractor={item => item.compteurId}
-                    ItemSeparatorComponent={ItemDivider}
-                    ListHeaderComponent={FlatList_Header}
-                    ListHeaderComponentStyle={{ borderBottomWidth: 2 }}
+            <ScrollView showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
                 />
-
-            </ScrollView>
+              }
+            >
+                <ScrollView horizontal={true} bounces={false}>
+                    <FlatList
+                        data={compteurs}
+                        renderItem={({ item, index }) => <ItemRender
+                            compteurId={item.compteurId}
+                            idCompteur={item.compteurId}
+                            index={index}
+                            numero={item.numeroCompteur}
+                            idGeo={item.idGeographique}
+                            codeEtat={item.codeEtat}
+                            ancienIndex={item.ancienIndex}
+                            consMoyenne={item.consMoyenne}
+                            etatLecture={item.etatLecture}
+                            numeroRue={item.numeroRue}
+                            consommation={item.consommation}
+                            police={item.police}
+                            abonne={item.nomAbonne}
+                            adress={item.adresse} />}
+                        keyExtractor={item => item.compteurId}
+                        ItemSeparatorComponent={ItemDivider}
+                        ListHeaderComponent={FlatList_Header}
+                        ListHeaderComponentStyle={{ borderBottomWidth: 2 }}
+                    />
+                </ScrollView>
             </ScrollView>
         </View>
     )

@@ -3,8 +3,8 @@ import { useNavigation } from "@react-navigation/native";
 import React, { useState, useRef, useEffect } from "react"
 import { StyleSheet, Text, View, TouchableOpacity, Modal, Pressable, BackHandler } from "react-native"
 import { useDispatch, useSelector } from "react-redux";
-import { AddDataToStore } from "../../services/AddDataTotore";
 import { logout } from "../../services/redux/userSlice";
+import { updateUserTerminal } from "../../services/TerminalService";
 
 
 export default function ModalUserOption() {
@@ -12,6 +12,8 @@ export default function ModalUserOption() {
     const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
     const user = useSelector((state) => state.user.value);
+    const terminalLocal = useSelector((state) => state.terminals.terminalLocal);
+
     //const [role, setRole] = useState("Admin")
     const [role, setRole] = useState(user.role)
 
@@ -33,6 +35,7 @@ export default function ModalUserOption() {
 
     const logoutHandler = () => {
         dispatch(logout());
+        updateUserTerminal(terminalLocal,null,null)
         goto('login');
     }
     return (
@@ -89,7 +92,7 @@ const styles = StyleSheet.create({
     modalContent: {
         width: '43%',
         position: 'absolute',
-        top: 39,
+        top: 35,
         backgroundColor: '#36382F',
         paddingLeft:5,
         paddingVertical:5,

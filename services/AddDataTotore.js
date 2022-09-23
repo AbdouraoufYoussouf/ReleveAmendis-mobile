@@ -2,15 +2,16 @@
 import { setAnomalies, setDesignationAnomalies, setFluides } from "./redux/anomalieSlice";
 import { loding, setAncienCompteurs, setCompteurs } from "./redux/compteurSlice";
 import { setRue, setSecteur } from "./redux/rueSecteurSlice";
-import { getTerminalLocal } from "./redux/terminalSlice";
+import { getTerminalLocal, isCreateCompteur, isCreatecTerminal } from "./redux/terminalSlice";
 import { getAllTourne, setDataTourne ,setTourneCourant} from "./redux/tourneSlice";
 import db from "./SqliteDb";
 import { addAllTerminalsToStore, addTerminalToStore } from "./TerminalService";
+import { addAllUsersToStore } from "./UserService";
 
 export const AddDataToStore = (dispatch) => {
 
     addAllTerminalsToStore(dispatch);
-    
+    addAllUsersToStore(dispatch)
     ///Anomalies
     db.transaction(function (txn) {
         txn.executeSql(
@@ -115,7 +116,8 @@ export const AddDataToStore = (dispatch) => {
             (tx, res) => {
                  dispatch(getTerminalLocal(res.rows.item(0)));
                  //addTerminalToStore(res.rows.item(0).numeroTPL,dispatch)
-                 console.log('terminalLocalService:', res.rows.item(0)?.numeroTPL);
+                 console.log('terminalLocalService:', res.rows.item(0));
+                 dispatch(isCreateCompteur(res.rows.item(0)?.isCreatec==0? false : true))
             }
         );
     });

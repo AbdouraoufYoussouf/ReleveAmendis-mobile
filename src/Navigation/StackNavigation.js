@@ -17,6 +17,7 @@ import { FluideScreen } from "../Screens/FluideScreen";
 import TestScreen from '../../test/TestScreen';
 import PageLectureCompteur from "../Screens/Releveur/PageLectureCompteur";
 import { CompteScreen } from "../Screens/CompteScreen";
+import LusCompteurScreen from "../Screens/Compteurs/LusCompteurScreen";
 
 
 const Stack = createStackNavigator();
@@ -65,9 +66,15 @@ export default function StackNavigation({ navigation }) {
 
         
             <Stack.Screen
-                options={{ tabBarLabelStyle: { fontSize: 14 }, headerTitle: 'Compteur non lus', }}
+                options={{ tabBarLabelStyle: { fontSize: 14 }, headerTitle: 'Compteurs non lus', }}
                 name="nonluCompteur" component={NonlusCompteurScreen}
             />
+        
+            <Stack.Screen
+                options={{ tabBarLabelStyle: { fontSize: 14 }, headerTitle: 'Compteurs lus', }}
+                name="luCompteur" component={LusCompteurScreen}
+            />
+
             <Stack.Screen
                 options={{ tabBarLabelStyle: { fontSize: 14 }, headerTitle: 'Rechercher Compteur', }}
                 name="searchCompteur" component={SearchCompteur}

@@ -8,7 +8,9 @@ export const terminalSlice = createSlice({
         terminalLocal: {},
         idTerminal: null,
         isCreatec: false,
-        isDbExist: false
+        isDbExist: false,
+        isInsert : false
+     
     },
     reducers: {
         getAllterminals: (state, { payload }) => {
@@ -49,8 +51,14 @@ export const terminalSlice = createSlice({
         NotisCreateCompteur: (state, { payload }) => {
             state.isCreatec = false
         },
+        isInsertTerminal: (state, { payload }) => {
+            state.isInsert = true
+        },
+        NotIsInsertTerminal: (state, { payload }) => {
+            state.isInsert = false
+        },
     },
 });
 
-export const {isDbNotExist,isDbExist, isCreateCompteur,editTerminalLocalStore, getTerminalLocal, isCreatecTerminal, NotisCreatecTerminal, getTerminal, getAllterminals, editTerminalStore } = terminalSlice.actions;
+export const {isInsertTerminal,NotIsInsertTerminal,isDbNotExist,isDbExist, isCreateCompteur,editTerminalLocalStore, getTerminalLocal, isCreatecTerminal, NotisCreatecTerminal, getTerminal, getAllterminals, editTerminalStore } = terminalSlice.actions;
 export default terminalSlice.reducer;

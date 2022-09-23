@@ -13,15 +13,16 @@ import { AddAnomaliesStore, UpdateAnomalie } from './services/Anomalie.Service';
 import axios from 'axios';
 import { isDbExist } from './services/redux/terminalSlice';
 import { getAllTourne, setTourneCourant } from './services/redux/tourneSlice';
+import { addAllTerminalsToStore } from './services/TerminalService';
 
 export default function App() {
   const dispatch = useDispatch()
   const user = useSelector((state) => state.user.value);
   const userId = user.userId;
   const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
-  const allTerminals = useSelector((state) => state.terminals.terminals);
+  const allTerminals = useSelector((state) => state.terminals.allTerminals);
 
- // console.log('create compteur', isCreatec)
+  console.log('termianl', allTerminals)
   useEffect(() => {
     //console.log('tournecou',tourneCourant)
     /////// Create DB if not exist ***********
@@ -43,7 +44,7 @@ export default function App() {
     });
     
     //dropAllTables()
-
+    //addAllTerminalsToStore(dispatch);
   AddDataToStore(dispatch);
   }, []);
 
@@ -62,7 +63,7 @@ export default function App() {
        // console.log('CompteurNonluByTourne1:', comptNonLus.length);
         //console.log('numeoTourneCourant:', tourneCourant);
         dispatch(setCompteurs(compteurByTourne))
-        console.log('allcompteurs ',temp)
+        //console.log('allcompteurs ',temp)
       }
     );
   });

@@ -3,8 +3,9 @@ import { addAnomalieStore, deleteAnomalieStore, setAnomalies, setFluides } from 
 import { ToastEchec, ToastSuccess } from "../src/Components/Notifications";
 import axios from "axios";
 import { ToastAndroid } from "react-native";
+import baseUrl from "./TerminalService";
 
-const url = 'http://192.168.1.9:45455/api/Anomalie';
+const url = baseUrl+'Anomalie';
 let axiosConfig = {
   headers: {
     'accept': 'text/plain',
@@ -35,7 +36,7 @@ export const insertAllAnomalies = async (dispatch) => {
 }
 export const insertAllFluides = async (dispatch) => {
   let fluides = []
-  await axios.get('http://192.168.1.9:45455/api/Fluide')
+  await axios.get(baseUrl+'Fluide')
     .then(function (response) {
       //console.log(response.data);
       fluides = response.data;
@@ -189,7 +190,7 @@ export const updateFluide = async (codeFluide,filtreSup, filtreInf,filtreMax,fil
     "filterMax": filtreMax,
     "filterMin": filtreMin
 }
- await axios.put('http://192.168.1.9:45455/api/Fluide/' + codeFluide, fluid, axiosConfig)
+ await axios.put(baseUrl+'Fluide/' + codeFluide, fluid, axiosConfig)
     .then((res) => {
       console.log('Fluide mis à jour avec succés', res)
       updateFluideLocal(codeFluide,filtreSup, filtreInf,filtreMax,filtreMin)

@@ -5,7 +5,9 @@ export const anomalieSlice = createSlice({
     initialState:{
         anomalies:[],
         designationAnomalie:null,
-        fluides:[]
+        fluides:[],
+        isInsert:false
+
     },
     reducers:{
         setAnomalies:(state,{payload}) => {
@@ -28,9 +30,14 @@ export const anomalieSlice = createSlice({
             const itemId = payload;
             state.anomalies = state.anomalies.filter((anomal) => anomal.anomalieId !== itemId);
         },
-        
+        isInsertAnomalie: (state, { payload }) => {
+            state.isInsert = true
+        },
+        notIsInsertAnomalie: (state, { payload }) => {
+            state.isInsert = false
+        },
     }
 });
 
-export const {deleteAnomalieStore, setAnomalies,addAnomalieStore ,setDesignationAnomalies,updatedAnomalieStore,setFluides } = anomalieSlice.actions;
+export const {isInsertAnomalie,notIsInsertAnomalie,deleteAnomalieStore, setAnomalies,addAnomalieStore ,setDesignationAnomalies,updatedAnomalieStore,setFluides } = anomalieSlice.actions;
 export default anomalieSlice.reducer;

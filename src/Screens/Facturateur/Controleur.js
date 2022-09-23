@@ -2,9 +2,11 @@ import axios from 'axios';
 import { Alert, PermissionsAndroid } from 'react-native';
 import DocumentPicker from 'react-native-document-picker';
 import XLSX, { readFile } from 'xlsx';
+import { AddDataToStore } from '../../../services/AddDataTotore';
 import { insertCompteur } from '../../../services/Compteur.Service';
 import { insertAllRue, insertAllSecteur } from '../../../services/RueSecteurService';
 import db from '../../../services/SqliteDb';
+import baseUrl from '../../../services/TerminalService';
 import { insertTourne } from '../../../services/TourneeServices';
 import { ToastAvertisement, ToastSuccess } from '../../Components/Notifications';
 
@@ -109,11 +111,12 @@ export const handleClickDecharge = async (data, tourne, setTourne, type) => {
 
 // Ajouter les tournes et les compteurs dans la base des donnés sqlite
 
-export const handleClickChargeDistant = async (terminalNumber) => {
+export const handleClickChargeDistant = async (terminalNumber,dispatch) => {
+    console.log('debut charge',terminalNumber);
     let tourneeList = [];
-    await axios.get('http://192.168.1.9:45455/api/Terminal/' + terminalNumber)
-        .then(function (response) {
-            //console.log(response.data);
+    await axios.get(baseUrl+'Terminal/' + terminalNumber)
+    .then(function (response) {
+            console.log('terminaldata',response.data);
             tourneeList = response.data.tourneeList;
         })
         .catch(function (error) {
@@ -159,7 +162,9 @@ export const handleClickChargeDistant = async (terminalNumber) => {
             );
         });
         ToastSuccess(`${tourneeList.length}, Tournes ajoutés avec success!!`);
-
+        setTimeout(() => {
+            AddDataToStore(dispatch);
+        }, 1000);
     })
 }
 
@@ -203,7 +208,7 @@ export const dechargeCompteurs = (compteurs,message) => {
     }
     allCompteurs.map((compt, index) => {
         console.log('numeroCompteur', compt.numberElecticMeter)
-        axios.put('http://192.168.1.9:45455/api/ElectricMeter/decharge/' + compt.numberElecticMeter, compt, axiosConfig)
+        axios.put(baseUrl+'ElectricMeter/decharge/' + compt.numberElecticMeter, compt, axiosConfig)
             .then((res) => {
                 console.log('Compteur mis à jour avec succés')
                 console.log(index)

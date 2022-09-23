@@ -3,7 +3,7 @@ import { ToastAndroid } from 'react-native';
 import db from '../services/SqliteDb';
 import { ToastEchec, ToastSuccess } from '../src/Components/Notifications';
 import { AddDataToStore } from './AddDataTotore';
-import { setCompteurs } from './redux/compteurSlice';
+import { setAncienCompteurs, setCompteurs } from './redux/compteurSlice';
 
 export const insertCompteur = (numeroCompteur, idGeographique, nomAbonne, police, numeroRue, codeSecteur, codeFluide, codeEtat, etatLecture, ancienIndex, consMoyenne, numeroTourne, consommation, ordreRue) => {
 
@@ -96,11 +96,11 @@ export const verifieConsomation = (ancienIndex, newIndex, consMoyenne, setDialog
 
   if (consMoyenne != null) {
     if (consommation <= (consMoyenne * 3 / 8)) {
-      setWarningMessg('La consommation est trés faible, voulez-vous Enregistrer?')
+      setWarningMessg('La consommation est faible, voulez-vous Enregistrer?')
       console.log('consomation', consommation, 'entre', 0, 'et', consMoyenne * 3 / 8)
     }
     if ((consMoyenne * 3 / 8 + 1) < consommation && consommation < (consMoyenne * 3 / 4)) {
-      setWarningMessg('La consommation est faible, voulez-vous Enregistrer?')
+      setWarningMessg('La consommation est normal, voulez-vous Enregistrer?')
       console.log('consomation', consommation, 'entre', (consMoyenne * 3 / 8 + 1), 'et', (consMoyenne * 3 / 4))
     } else {
       if ((consMoyenne * 3 / 4 + 1) < consommation && consommation < (consMoyenne * 3 / 2)) {
@@ -108,11 +108,11 @@ export const verifieConsomation = (ancienIndex, newIndex, consMoyenne, setDialog
         console.log('consomation', consommation, 'entre', (consMoyenne * 3 / 4 + 1), 'et', (consMoyenne * 3 / 2))
       } else {
         if ((consMoyenne * 3 / 2 + 1) < consommation && consommation < (consMoyenne * 3)) {
-          setWarningMessg('La consommation est forte, voulez-vous Enregistrer?')
+          setWarningMessg('La consommation est normal, voulez-vous Enregistrer?')
           console.log('consomation', consommation, 'entre', (consMoyenne * 3 / 2 + 1), 'et', (consMoyenne * 3))
         } else {
           if ((consMoyenne * 3 + 1) <= consommation) {
-            setWarningMessg('La consommation est trés forte, voulez-vous Enregistrer?')
+            setWarningMessg('La consommation est forte, voulez-vous Enregistrer?')
             console.log('consomation', consommation, 'supperieur', (consMoyenne * 3 + 1))
           } else {
             if (consommation < 0) {
@@ -197,6 +197,25 @@ export const refrecheCompteurs = (tourneCourant,dispatch) =>{
                 const compteurByTourne = comptNonLus.filter((cmt) => cmt.numeroTourne == tourneCourant)
                
             dispatch(setCompteurs(compteurByTourne))
+        }
+    );
+});
+}
+
+export const refrechAncienCompteur =( dispatch)=>{
+  db.transaction(function (txn) {
+    txn.executeSql(
+        'SELECT * FROM compteur',
+        [],
+        (tx, res) => {
+            var temp = [];
+            let len = res.rows.length;
+            console.log('Compteur:', len);
+            for (let i = 0; i < len; ++i)
+                temp.push(res.rows.item(i));
+           // console.log(temp[1])
+            //dispatch(loding());
+            dispatch(setAncienCompteurs(temp))
         }
     );
 });

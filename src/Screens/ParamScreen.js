@@ -26,7 +26,8 @@ export default function ParamScreen() {
 
   const [isEnabled, setIsEnabled] = useState(terminalLocal?.isCreatec == 1 ? true : false);
 
-console.log(terminalLocal?.isCreatec)
+//console.log(terminalLocal?.isCreatec)
+
   const toggleSwitch = () => {
     setIsEnabled(previousState => !previousState);
     dispatch(isCreateCompteur(!isEnabled))
@@ -67,7 +68,7 @@ console.log(terminalLocal?.isCreatec)
               setTimeout(() => {
                 //AddDataToStore(dispatch);
                 setIndicatorCreate(false)
-                ToastSuccess('La base des données est créer avec des données ajoutés !')
+                ToastSuccess('La base des données est créer avec des données!')
               }, 1000);
             } else {
               setIndicatorCreate(false)
@@ -108,6 +109,7 @@ console.log(terminalLocal?.isCreatec)
   const deleteDb = () => {
     if (dbExist) {
       dropAllTables()
+      AddDataToStore(dispatch)
       //toggleModal();
       dispatch(isDbNotExist())
     }else{

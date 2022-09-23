@@ -8,6 +8,7 @@ import { updateTerminalLocal, updateTerminalOccupy } from "../../services/Termin
 import { editTerminalLocalStore, editTerminalStore } from "../../services/redux/terminalSlice";
 import MyDialog from "./MyDialog";
 import db from "../../services/SqliteDb";
+import { AddDataToStore } from "../../services/AddDataTotore";
 
 export const ModalConfigureTerminal = ({ modalVisibleTerminal, setModalVisibleTerminal }) => {
   const dispatch = useDispatch()
@@ -46,6 +47,7 @@ export const ModalConfigureTerminal = ({ modalVisibleTerminal, setModalVisibleTe
         updateTerminalLocal(terminal, terminalLocal?.isCreatec)
         updateTerminalOccupy(terminal)
         dispatch(editTerminalStore({ terminalNumber: terminal, isOccupy: true }))
+      
 
         console.log('Termial Configuré!')
         ToastAndroid.showWithGravityAndOffset(
@@ -55,7 +57,9 @@ export const ModalConfigureTerminal = ({ modalVisibleTerminal, setModalVisibleTe
           25,
           200
         );
-        dispatch(editTerminalLocalStore({ idTerminal: 1, terminalNumber: terminal, isCreatec: terminalLocal?.isCreatec }))
+        setTimeout(() => {
+          AddDataToStore(dispatch);
+        }, 1000);
 
       } else {
         setErrore("Ce numero du terminal n'est pas parmi les numero valide, veillez verifier et ressayer!")

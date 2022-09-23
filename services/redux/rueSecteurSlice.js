@@ -5,7 +5,9 @@ export const rueSecteurSlice = createSlice({
     initialState:{
         rues:[],
         secteurs:[],
-      rueEnlecture:''
+      rueEnlecture:'',
+      isInsert: false
+     
     },
     reducers:{
         setRue:(state,{payload}) => {
@@ -31,9 +33,14 @@ export const rueSecteurSlice = createSlice({
                 }
             }
         },
-       
+        isInsertFluide: (state, { payload }) => {
+            state.isInsert = true
+        },
+        NotIsInsertFluide: (state, { payload }) => {
+            state.isInsert = false
+        },
     }
 });
 
-export const { setRue ,setSecteur,setRueEnlecture,addRue} = rueSecteurSlice.actions;
+export const {isInsertFluide,NotIsInsertFluide, setRue ,setSecteur,setRueEnlecture,addRue} = rueSecteurSlice.actions;
 export default rueSecteurSlice.reducer;

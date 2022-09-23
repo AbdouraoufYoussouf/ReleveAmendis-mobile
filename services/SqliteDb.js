@@ -15,7 +15,7 @@ export const createDatabase = () => {
       tx => {
         const onSuccess = () => {
           console.log(`Success`);
-          ToastSuccess('La base des données est créer avec des données ajoutés !')
+          //ToastSuccess('La base des données est créer avec des données ajoutés !')
 
         };
 

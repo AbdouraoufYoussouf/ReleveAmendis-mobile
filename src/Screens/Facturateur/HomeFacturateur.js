@@ -23,7 +23,7 @@ export default function HomeFacturateur() {
 
   const terminalLocal = useSelector((state) => state.terminals.terminalLocal);
   const terminal = useSelector((state) => state.terminals.terminal);
-  //console.log('terminalLocal', terminalLocal)
+  console.log('terminalLocal', terminalLocal)
   const dbExist = useSelector((state) => state.terminals.isDbExist);
 
   const datasComplete = useSelector((state) => state.compteurs.ancienCompteurs);
@@ -56,7 +56,7 @@ export default function HomeFacturateur() {
   let handleChargeDistant = () => {
     if (dbExist) {
       if(termianlExist!=null){
-        handleClickChargeDistant(terminalLocal?.numeroTPL)
+        handleClickChargeDistant(terminalLocal?.numeroTPL,dispatch)
       }else{
         ToastAvertisement("Vous devez configurer le terminal avant de faire la charge!")
       }
@@ -67,7 +67,7 @@ export default function HomeFacturateur() {
   }
 
   useEffect(()=>{
-//console.log('homeFacturateur')
+console.log('homeFacturateur')
   },[terminalLocal])
 
   return (

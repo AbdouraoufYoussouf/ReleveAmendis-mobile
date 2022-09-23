@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React, { useState, useEffect } from 'react';
 import { KeyboardAvoidingView, Button, ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { MyButtonContainer,MyButton } from '../Screens/styles/homeStyle';
+import { MyButtonContainer, MyButton } from '../Screens/styles/homeStyle';
 import { Container, Form, FormControle, FormInput, Icone, InputFild, Label, Logo, ParaTitle, Title } from './styles';
 import * as yup from 'yup';
 import { Formik } from 'formik';
@@ -51,8 +51,8 @@ export default function Login({ navigation, route }) {
               passwordu: row.password
             }))
             if (password === row.password) {
-               console.log('userData',row)
-              updateUserTerminal(terminalLocal,null,row)
+              console.log('userData', row)
+              updateUserTerminal(terminalLocal, null, row)
               navigation.navigate('home', { user: row })
               setEmail('')
               setPassword('')
@@ -90,7 +90,7 @@ export default function Login({ navigation, route }) {
             onSubmit={(values) => onLogin(values.email, values.password)}
             validationSchema={loginValidationShelma}
           >
-            {({ handleChange, handleBlur, handleSubmit,resetForm, values, touched, isValid, errors }) => (
+            {({ handleChange, handleBlur, handleSubmit, resetForm, values, touched, isValid, errors }) => (
               <Form>
                 <FormControle>
                   <Label>Email</Label>
@@ -137,8 +137,24 @@ export default function Login({ navigation, route }) {
                   </TouchableOpacity>
                 </FormControle>
 
-                {/* <FormControle >
+                <FormControle >
                   <TouchableOpacity disabled={!isValid} onPress={handleSubmit}
+                    style={[styles.btnSave, { backgroundColor: isValid ? '#155e75' : '#CACFD2' }]}
+                  >
+                    <MyButtonContainer paddingTop='3px' width='100%' color='white' >
+                      {
+                        loading ? (
+                          <UIActivityIndicator color='orange' size={35} style={{ display: 'flex', alignSelf: 'center' }} />
+                        ) : (<MyButton width='100%' color='white'>Se Connecter</MyButton>)
+                      }
+                    </MyButtonContainer>
+
+                  </TouchableOpacity>
+                </FormControle>
+                
+                 
+               {/* <FormControle >
+                  <TouchableOpacity disabled={!isValid} onPress={() => onLogin('abdou@gmail.com', 'Abdou@2002')}
                     style={[styles.btnSave, { backgroundColor: isValid ? '#155e75' : '#CACFD2' }]}
                   >
                     <MyButtonContainer  paddingTop='3px' width='100%' color='white' >
@@ -152,22 +168,7 @@ export default function Login({ navigation, route }) {
                   </TouchableOpacity>
                 </FormControle>  */}
 
-               <FormControle >
-                  <TouchableOpacity disabled={!isValid} onPress={() => onLogin('alhalim@gmail.com', 'Alhalim@2020')}
-                    style={[styles.btnSave, { backgroundColor: isValid ? '#155e75' : '#CACFD2' }]}
-                  >
-                    <MyButtonContainer  paddingTop='3px' width='100%' color='white' >
-                    {
-                      loading ? (
-                          <UIActivityIndicator color='orange' size={35} style={{display:'flex',alignSelf:'center'}} />
-                        ) : (<MyButton width='100%' color='white'>Se Connecter</MyButton>)
-                    }
-                      </MyButtonContainer>
-                  
-                  </TouchableOpacity>
-                </FormControle>
 
-                
 
               </Form>
             )}

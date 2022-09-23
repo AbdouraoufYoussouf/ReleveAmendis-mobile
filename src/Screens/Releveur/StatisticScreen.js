@@ -6,14 +6,15 @@ export default function StatisticScreen({ navigation }) {
 
     const datasComplete = useSelector((state) => state.compteurs.ancienCompteurs);
     const dataCompleteNonlu = useSelector((state) => state.compteurs.compteurs);
+    const lu = useSelector((state) => state.compteurs.lu);
     const datasPartiel = datasComplete.filter((comt) => comt.etatLecture === 'L');
     const tournesData = useSelector((state) => state.tournes.tournes);
-
+const [data,setData] = useState([])
     var statistics = tournesData.map((tour) => {
         const compteurByTourne = datasComplete.filter((cmt) => cmt.numeroTourne == tour.numeroTourne)
-        const comptNonLus = dataCompleteNonlu.filter((nlu) => nlu.numeroTourne == tour.numeroTourne)
+        const comptNonLus = compteurByTourne.filter((nlu) => nlu.etatLecture == 'NL')
         const comptLus = compteurByTourne.filter((nlu) => (nlu.etatLecture == 'L'))
-        let pourcentage = compteurByTourne?.length * 100 / datasComplete?.length
+        let pourcentage = comptLus?.length * 100 / datasComplete?.length
         return {
             'numeroTourne': tour.numeroTourne,
             'lus': comptLus?.length,
@@ -23,7 +24,7 @@ export default function StatisticScreen({ navigation }) {
 
         }
     })
-    console.log('stat',statistics)
+    console.log('stat', statistics)
 
     const Data = [
         {
@@ -73,7 +74,6 @@ export default function StatisticScreen({ navigation }) {
                 backgroundColor: '#17DBE4',
                 alignItems: 'center',
             }}>
-
                 <Text style={{ fontSize: 18, fontWeight: 'bold', width: 90, color: 'black', height: 30 }}> N° Tourne</Text>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', width: 70, color: 'black', borderLeftWidth: 1, height: 30, paddingHorizontal: 3 }}> Lus </Text>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', width: 80, color: 'black', borderLeftWidth: 1, height: 30, paddingHorizontal: 3 }}> Non lus </Text>
@@ -83,8 +83,8 @@ export default function StatisticScreen({ navigation }) {
         );
     }
 
-    const ItemRender = ({ numeroTourne, lus, nonLus, total,pourcentage, index }) => (
-        <View style={[styles.item, index % 2 && { backgroundColor: '#D0C9C0' }]}>
+    const ItemRender = ({ numeroTourne, lus, nonLus, total, pourcentage, index }) => (
+        <View key={index} style={[styles.item, index % 2 && { backgroundColor: '#D0C9C0' }]}>
             <Text style={{ fontSize: 17, width: 90, color: 'black', textAlign: 'center' }}>{numeroTourne}</Text>
             <Text style={{ fontSize: 17, width: 70, color: 'black', textAlign: 'center' }}>{lus}</Text>
             <Text style={{ fontSize: 17, width: 80, color: 'black', textAlign: 'center' }}>{nonLus}</Text>
@@ -103,16 +103,19 @@ export default function StatisticScreen({ navigation }) {
             />
         );
     }
-useEffect(()=>{},[dataCompleteNonlu])
+    useEffect(() => {
+        setData(statistics)
+        console.log(lu)
+    }, [lu])
 
     return (
 
         <View style={styles.container} >
             <ScrollView horizontal={true} bounces={false}>
                 <FlatList
-                    data={statistics}
-                    renderItem={({ item, index }) => <ItemRender index={index} numeroTourne={item.numeroTourne} lus={item.lus} nonLus={item.nonLus} total={item.total} pourcentage={item.pourcentage}   />}
-                    keyExtractor={item => item.id}
+                    data={data}
+                    renderItem={({ item, index }) => <ItemRender key={index} index={index} numeroTourne={item.numeroTourne} lus={item.lus} nonLus={item.nonLus} total={item.total} pourcentage={item.pourcentage} />}
+                    keyExtractor={item => item.numeroTourne}
                     ItemSeparatorComponent={ItemDivider}
                     ListHeaderComponent={FlatList_Header}
                     ListHeaderComponentStyle={{ borderBottomWidth: 2 }}

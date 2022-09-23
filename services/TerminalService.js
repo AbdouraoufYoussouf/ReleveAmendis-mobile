@@ -3,8 +3,10 @@ import { ToastEchec } from '../src/Components/Notifications';
 import { getAllterminals, getTerminal } from './redux/terminalSlice';
 import db from "./SqliteDb";
 
-const url = 'http://192.168.1.9:45455/api/Terminal';
-
+ 
+const baseUrl = 'http://192.168.1.10:45456/api/'
+const url = baseUrl +'Terminal';
+export default baseUrl;
 let axiosConfig = {
   headers: {
     'accept': 'text/plain',
@@ -16,7 +18,7 @@ let axiosConfig = {
 export const addAllTerminalsToStore = async (dispatch) => {
   await axios.get(url)
     .then(function (response) {
-      //console.log(response.data);
+      console.log(response.data);
       dispatch(getAllterminals(response.data))
     })
     .catch(function (error) {
@@ -69,7 +71,7 @@ export const updateTerminalLocal = (terminalNumber, isCreatec) => {
     db.transaction(
       tx => {
         const onSuccess = () => {
-          console.log(`Success`);
+          console.log(`Success Terminal updated local`);
 
           //ToastSuccess('Terminal mis à jour avec success!!');
         };

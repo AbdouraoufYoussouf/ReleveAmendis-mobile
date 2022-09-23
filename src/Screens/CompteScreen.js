@@ -4,8 +4,10 @@ import { View, SectionList, SafeAreaView, ScrollView, FlatList, TouchableOpacity
 import { useSelector } from 'react-redux';
 
 export const CompteScreen = () => {
-    const [role, setRole] = useState('Facturateur');
-    
+    const user = useSelector((state) => state.user.value);
+    const [role, setRole] = useState(user.role)  
+    const users = useSelector((state) => state.user.users);
+  console.log('users',users)
     useEffect(()=>{
 
     },[])
@@ -21,7 +23,7 @@ export const CompteScreen = () => {
         { id: 9, login: 'rafelmirereni@gmail.com', role: 'Facturateur', },
     ];
 
-const result = Data.filter(res => res.role==='Releveur');
+const result = users.filter(res => res.role==='Facturateur' || res.role==='Releveur');
 
     const FlatList_Header = () => {
         return (
@@ -34,7 +36,7 @@ const result = Data.filter(res => res.role==='Releveur');
                 alignItems: 'center',
             }}>
 
-                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 50, color: 'black', height: 30,marginTop:5 }}> Id </Text>
+                <Text style={{ fontSize: 18, fontWeight: 'bold', width: 70, color: 'black', height: 30,marginTop:5 }}> Mat </Text>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', width: 220, color: 'black', borderLeftWidth: 1,marginTop:5, height: 30, }}> Login </Text>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', width: 120, color: 'black', borderLeftWidth: 1,marginTop:5, height: 30, }}> Role </Text>
                 <Text style={{ fontSize: 18, fontWeight: 'bold', width: 100, color: 'black', borderLeftWidth: 1,marginTop:5, height: 30, }}> Option</Text>
@@ -42,9 +44,9 @@ const result = Data.filter(res => res.role==='Releveur');
         );
     }
 
-    const ItemRender = ({ login, role, id, index}) => (
+    const ItemRender = ({ login, role, matricule, index}) => (
         <View style={[styles.item,index%2 && { backgroundColor: '#fff'}]}>
-            <Text style={{ fontSize: 17, width: 50, color: 'black',textAlign:'center' }}>{id}</Text>
+            <Text style={{ fontSize: 17, width: 70, color: 'black',textAlign:'center' }}>{matricule}</Text>
             <Text style={{ fontSize: 17, width: 220, color: 'black', paddingHorizontal: 3 }}>{login}</Text>
             <Text style={{ fontSize: 17, width: 120, color: 'black', paddingHorizontal: 2, }}>{role}</Text>
             <View style={{ width: 100, flexDirection: 'row' }}>
@@ -76,9 +78,9 @@ const result = Data.filter(res => res.role==='Releveur');
             <ScrollView horizontal={true} bounces={false}>
                 <FlatList 
                     
-                    data={role==='Admin'? Data:result}
-                    renderItem={({ item,index }) => <ItemRender login={item.login} role={item.role} id={item.id} index={index} />}
-                    keyExtractor={item => item.id}
+                    data={role==='Admin'? users:result}
+                    renderItem={({ item,index }) => <ItemRender login={item.email} role={item.role} matricule={item.matricule} index={index} fullName={item.fullName}  />}
+                    keyExtractor={item => item.userId}
                     ItemSeparatorComponent={ItemDivider}
                     ListHeaderComponent={FlatList_Header}
                     ListHeaderComponentStyle={{ borderBottomWidth: 2 }}

@@ -4,7 +4,7 @@ import { Form, FormControle, MyText, InputFild, Label, FormInput, MyButton } fro
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { setCompteurs } from '../../../services/redux/compteurSlice';
+import { setCompteurs, setLu } from '../../../services/redux/compteurSlice';
 import db from '../../../services/SqliteDb';
 
 import MySelect from '../../Components/MySelect';
@@ -95,6 +95,7 @@ console.log('rue',rue)
 
   const handlSave = (numCompt, newIndex, ancienIndex, anomalie1, anomalie2,numeroRue) => {
     setIndicator(true);
+    
     updateNewIndex(numCompt, newIndex, ancienIndex, anomalie1, anomalie2)
 
     let compteur = compteurs.filter((comt) => comt.numeroCompteur == numCompt)
@@ -107,7 +108,7 @@ console.log('rue',rue)
     setDialogVisible(false);
     setIndicator(false);
     navigation.navigate('homeReleve');
-
+    dispatch(setLu())
     updateUserTerminal(terminalLocal,numeroRue,user)
   }
 

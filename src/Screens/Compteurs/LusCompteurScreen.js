@@ -1,16 +1,16 @@
 import React, { useState } from 'react'
 import { View, SectionList, SafeAreaView, ScrollView, FlatList, TouchableOpacity, Text, StyleSheet, RefreshControl } from 'react-native'
 import { useDispatch, useSelector } from 'react-redux';
-import { refrecheCompteurs } from '../../../services/Compteur.Service';
-import { loding, notLoding, setCompteurs, setIdCompteur, setRouteCompteur } from '../../../services/redux/compteurSlice';
+import { refrechAncienCompteur, refrecheCompteurs } from '../../../services/Compteur.Service';
+import { loding, notLoding, setAncienCompteurs, setCompteurs, setIdCompteur, setRouteCompteur } from '../../../services/redux/compteurSlice';
 
-export default function NonlusCompteurScreen({ navigation }) {
+export default function LusCompteurScreen({ navigation }) {
 
     const dispatch = useDispatch();
-    const compteurs = useSelector((state) => state.compteurs.compteurs);
-    const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
+    const allcompteurs = useSelector((state) => state.compteurs.ancienCompteurs);
+    const compteurs = allcompteurs.filter((nlu) => (nlu.etatLecture !== 'NL'))
 
-    console.log('nonlus', compteurs)
+    //console.log('nonlus', compteurs)
 
     const wait = (timeout) => {
         return new Promise(resolve => setTimeout(resolve, timeout));
@@ -18,8 +18,8 @@ export default function NonlusCompteurScreen({ navigation }) {
     const [refreshing, setRefreshing] = useState(false);
     const onRefresh = React.useCallback(() => {
         setRefreshing(true);
-        dispatch(setCompteurs([]));
-        refrecheCompteurs(tourneCourant,dispatch)
+        dispatch(setAncienCompteurs([]));
+        refrechAncienCompteur(dispatch)
         wait(1000).then(() => setRefreshing(false));
     }, []);
 
@@ -46,23 +46,24 @@ export default function NonlusCompteurScreen({ navigation }) {
         );
     }
 
-    const ItemRender = ({ etatLecture, consommation, consMoyenne, codeFluide, codeEtat, ancienIndex, numero, idGeo, police, abonne, adress, index }) => (
+    const ItemRender = ({ etatLecture, consommation, consMoyenne, nouveauIndex, codeEtat, ancienIndex, numero, idGeo, police, abonne, adress, index }) => (
         <TouchableOpacity key={index}
             onPress={() => {
-                navigation.navigate('pagelecture', {
-                    numeroCompteur: numero,
-                    idGeographique: idGeo,
+                navigation.navigate('details', {
+                    numero: numero,
+                    idGeo: idGeo,
                     police: police,
+                    abonne: abonne,
                     adresse: adress,
                     codeEtat: codeEtat,
-                    codeFluide: codeFluide,
-                    consMoyenne: consMoyenne,
+                    lecture: etatLecture,
                     ancienIndex: ancienIndex,
-                    nomAbonne: abonne,
-                    etatLecture: etatLecture,
-                    consommation: consommation,
+                    newIndex: nouveauIndex,
+                    consMoyenne: consMoyenne,
+                    consommation: consommation
                 });
             }}
+
             style={[styles.item, index % 2 && { backgroundColor: '#D0C9C0' }]}>
             <Text style={{ fontSize: 18, width: 40, color: 'black', textAlign: 'center' }}>{index + 1}</Text>
             <Text style={{ marginLeft: 5, fontSize: 18, marginLeft: 0, width: 120, color: 'black', textAlign: 'center' }}>{numero}</Text>
@@ -88,12 +89,12 @@ export default function NonlusCompteurScreen({ navigation }) {
 
         <View style={styles.container} >
             <ScrollView showsVerticalScrollIndicator={false}
-              refreshControl={
-                <RefreshControl
-                  refreshing={refreshing}
-                  onRefresh={onRefresh}
-                />
-              }
+                refreshControl={
+                    <RefreshControl
+                        refreshing={refreshing}
+                        onRefresh={onRefresh}
+                    />
+                }
             >
                 <ScrollView horizontal={true} bounces={false}>
                     <FlatList
@@ -106,6 +107,7 @@ export default function NonlusCompteurScreen({ navigation }) {
                             idGeo={item.idGeographique}
                             codeEtat={item.codeEtat}
                             ancienIndex={item.ancienIndex}
+                            nouveauIndex={item.nouveauIndex}
                             consMoyenne={item.consMoyenne}
                             etatLecture={item.etatLecture}
                             numeroRue={item.numeroRue}

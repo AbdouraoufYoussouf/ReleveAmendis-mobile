@@ -1,4 +1,17 @@
+import axios from "axios";
+import { getAllUsers } from "./redux/userSlice";
 import db from "./SqliteDb";
+import baseUrl from "./TerminalService";
+
+const url = baseUrl +'User';
+
+export const addAllUsersToStore = (dispatch) => {
+  axios.get(url)
+    .then(response => {
+      console.log('users',response.data)
+      dispatch(getAllUsers(response.data))
+    });
+}
 
 export const updateUserIdTourne = (userId,numeroTourne) => {
 

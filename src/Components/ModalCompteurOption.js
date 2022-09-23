@@ -16,9 +16,9 @@ export default function ModalCompteurOption() {
     const ruesData = useSelector((state) => state.rueSecteurs.rues);
     const secteursData = useSelector((state) => state.rueSecteurs.secteurs);
     const tournesData = useSelector((state) => state.tournes.tournes);
-    const isCreated = useSelector((state) => state.compteurs.isCreatec);
+    const isCreated = useSelector((state) => state.terminals.isCreatec);
     const tourneCourant = useSelector((state) => state.tournes.tourneCourant);
-   // console.log(isCreated)
+    console.log('iscrezy',isCreated)
     const navigation = useNavigation();
 
     const [modalVisible, setModalVisible] = useState(false);
@@ -139,7 +139,7 @@ export default function ModalCompteurOption() {
 
                         <View style={styles.body}>
                             {
-                                !isCreated ? (
+                                isCreated ? (
                                     <TouchableOpacity style={styles.contText}
                                         onPress={() => { goto('addCompteur'), setModalVisible(false) }}>
                                         <AntDesign style={{ marginTop: 3 }} name="check" size={22} color="white" />
@@ -152,7 +152,13 @@ export default function ModalCompteurOption() {
                             <TouchableOpacity style={styles.contText}
                                 onPress={() => { goto('nonluCompteur'), setModalVisible(false) }}>
                                 <AntDesign style={{ marginTop: 3 }} name="check" size={22} color="white" />
-                                <Text style={styles.modalText}>Compteur non lus</Text>
+                                <Text style={styles.modalText}>Compteurs non lus</Text>
+                            </TouchableOpacity>
+                            <View style={{ width: '100%', height: 2, backgroundColor: 'gray', alignSelf: 'center' }}></View>
+                            <TouchableOpacity style={styles.contText}
+                                onPress={() => { goto('luCompteur'), setModalVisible(false) }}>
+                                <AntDesign style={{ marginTop: 3 }} name="check" size={22} color="white" />
+                                <Text style={styles.modalText}>Compteurs lus</Text>
                             </TouchableOpacity>
                             <View style={{ width: '100%', height: 2, backgroundColor: 'gray', alignSelf: 'center' }}></View>
 
@@ -411,7 +417,7 @@ const styles = StyleSheet.create({
     },
     contText: {
         //backgroundColor: 'gray',
-        marginVertical: 2,
+        marginVertical: 3,
         display: "flex",
         flexDirection: 'row',
         height: 30

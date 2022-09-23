@@ -64,8 +64,8 @@ const dispatch = useDispatch()
             <ScrollView horizontal={true} bounces={false}>
                 <FlatList
                     data={anomalies}
-                    renderItem={({ item, index }) => <ItemRender index={index} anomalieId={item.anomalieId} libele={item.libele} designation={item.designation} codeFluide={item.codeFluide} adress={item.adress} />}
-                    keyExtractor={item => item.codeAnomalie}
+                    renderItem={({ item, index }) => <ItemRender key={index} index={index} anomalieId={item.anomalieId} libele={item.libele} designation={item.designation} codeFluide={item.codeFluide} adress={item.adress} />}
+                    keyExtractor={item =>item.anomalieId}
                     ItemSeparatorComponent={ItemDivider}
                     ListHeaderComponent={FlatList_Header}
                     ListHeaderComponentStyle={{ borderBottomWidth: 2 }}
